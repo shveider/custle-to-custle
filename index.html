@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Castle Clash: Age of Mages — Demo</title>
+    <style>
+        :root {
+            --bg: #1e293b;
+            --panel: #0f1724;
+            --text: #e6eef8;
+            --accent: #f59e0b
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            width: 100%;
+            font-family: Inter, Segoe UI, Arial;
+            background: linear-gradient(180deg, #0b1220 0%, #0f1724 100%);
+            color: var(--text)
+        }
+
+        #game {
+            width: 100%;
+            height: 100%;
+            margin: 24px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(2, 6, 23, .7);
+            background: linear-gradient(180deg, #0b1220, #071021)
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.03)
+        }
+
+        header h1 {
+            font-size: 16px;
+            margin: 0
+        }
+
+        .hud {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px
+        }
+
+        .field-container {
+            width: 100%;
+            overflow: auto;
+        }
+
+        #field {
+            position: relative;
+            min-width: 1700px;
+            height: 420px;
+            background: linear-gradient(90deg, #12321a 0%, #2b5a2f 100%);
+            display: flex;
+            align-items: center
+        }
+
+        .castle {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 120px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center
+        }
+
+        .castle.ai {
+            right: 12px;
+        }
+
+        .castle-svg {
+            position: relative;
+            z-index: 1;
+        }
+
+        .castle-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px;
+            border-radius: 4px;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .castle .hp {
+            width: 90%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            margin-top: 6px;
+            overflow: hidden
+        }
+
+        .castle .hp > i {
+            display: block;
+            height: 100%;
+            background: var(--accent);
+            width: 100%
+        }
+
+        #battle {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            margin: 0 150px
+        }
+
+        .ground {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 80px;
+            background: linear-gradient(180deg, #406a36, #2b4d27);
+            border-top: 3px solid rgba(0, 0, 0, .25)
+        }
+
+        .unit {
+            position: absolute;
+            bottom: 80px;
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #071021
+        }
+
+        .unit .icon {
+            position: relative;
+            z-index: 2
+        }
+
+        .unit .weapon {
+            position: absolute;
+            z-index: 1;
+            opacity: .9
+        }
+
+        .unit .weapon.sword {
+            width: 26px;
+            height: 6px;
+            background: linear-gradient(90deg, #d9d9d9, #9e9e9e);
+            border-radius: 2px;
+            transform: rotate(20deg) translate(8px, 8px);
+            box-shadow: 0 0 6px rgba(255, 255, 255, .4)
+        }
+
+        .unit .weapon.sword.swing {
+            animation: swordSwing 0.5s ease-in-out infinite alternate;
+            transform-origin: left center
+        }
+
+        .unit .weapon.bow {
+            width: 2px;
+            height: 28px;
+            background: #6b3a1f;
+            box-shadow: inset 0 0 2px #000;
+            transform: translate(14px, 0)
+        }
+
+        .unit .weapon.bow.draw {
+            animation: bowDraw 1s ease-in-out infinite alternate;
+            transform-origin: left center
+        }
+
+        .unit .weapon.staff {
+            width: 6px;
+            height: 30px;
+            background: linear-gradient(#7a4e91, #3a1f6b);
+            border-radius: 3px;
+            transform: translate(12px, -4px)
+        }
+
+        .unit .weapon.staff.glow {
+            box-shadow: 0 0 10px rgba(120, 80, 255, .6);
+            animation: staffGlow 1.2s ease-in-out infinite alternate
+        }
+
+        .unit .weapon.crystal {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle, #c5b3ff, #6f5bd1);
+            border-radius: 4px;
+            transform: translate(14px, -6px)
+        }
+
+        .unit .weapon.blade {
+            width: 28px;
+            height: 6px;
+            background: linear-gradient(90deg, #fff6b3, #ffd54d);
+            border: 1px solid rgba(255, 215, 0, .6);
+            border-radius: 3px;
+            transform: rotate(-15deg) translate(8px, 10px);
+            box-shadow: 0 0 8px rgba(255, 215, 0, .6)
+        }
+
+        .unit .weapon.blade.swing {
+            animation: bladeSwing 0.5s ease-in-out infinite alternate;
+            transform-origin: left center
+        }
+
+        @keyframes swordSwing {
+            from {
+                transform: rotate(10deg) translate(8px, 8px)
+            }
+
+            to {
+                transform: rotate(35deg) translate(8px, 8px)
+            }
+        }
+
+        @keyframes bladeSwing {
+            from {
+                transform: rotate(-10deg) translate(8px, 10px)
+            }
+
+            to {
+                transform: rotate(10deg) translate(8px, 10px)
+            }
+        }
+
+        @keyframes bowDraw {
+            from {
+                height: 26px
+            }
+
+            to {
+                height: 30px
+            }
+        }
+
+        @keyframes staffGlow {
+            from {
+                box-shadow: 0 0 6px rgba(120, 80, 255, .4)
+            }
+
+            to {
+                box-shadow: 0 0 14px rgba(120, 80, 255, .9)
+            }
+        }
+
+        .unit.swordsman {
+            background: #d1bfa0
+        }
+
+        .unit.archer {
+            background: #ffd7a6
+        }
+
+        .unit.mage {
+            background: #bcd4ff
+        }
+
+        .unit.supreme {
+            background: #f3c6ff
+        }
+
+        .unit.hero {
+            background: #ffefc2;
+            border: 3px solid gold
+        }
+
+        .unit.tank {
+            background: #a0a0a0
+        }
+
+        .unit.assassin {
+            background: #ff9aa6
+        }
+
+        .unit.necromancer {
+            background: #c9a0d1
+        }
+
+        .unit.giant {
+            background: #b5651d;
+            transform: scale(1.2);
+        }
+
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(255, 255, 255, .5)
+        }
+
+        .projectile.arrow {
+            width: 10px;
+            height: 3px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #8b5a2b, #e0a96d)
+        }
+
+        .projectile.bolt {
+            background: radial-gradient(circle, #c5b3ff, #6f5bd1)
+        }
+
+        .projectile.fire {
+            background: radial-gradient(circle, #ffd29a, #ff7a00)
+        }
+
+        .impact {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, .5)
+        }
+
+        #ui {
+            padding: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            justify-content: space-between
+        }
+
+        .deck {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            width: 650px;
+        }
+
+        .card {
+            width: auto;
+            color: #a1a9b8;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none
+        }
+
+        .card.cool {
+            opacity: .5;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card.cool::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        .card .cost {
+            font-weight: 700;
+            color: var(--accent)
+        }
+
+        .hero-stats {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-row span:first-child {
+            color: #aaa;
+        }
+
+        .stat-row span:last-child {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .log {
+            width: 380px;
+            height: 320px;
+            background: #07101a;
+            border-radius: 8px;
+            padding: 8px;
+            overflow: auto;
+            font-size: 13px
+        }
+
+        .bottom-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .xp {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            overflow: hidden
+        }
+
+        .xp > i {
+            height: 100%;
+            background: #38bdf8;
+            width: 0%
+        }
+
+        button.small {
+            background: var(--accent);
+            color: #071021;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer
+        }
+
+        footer {
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5)
+        }
+    </style>
+</head>
+
+<body>
+<div id="game">
+    <header>
+        <h1>Castle Clash: Age of Mages — Demo</h1>
+        <div class="hud">
+            <div class="panel">Gold: <span id="gold">0</span></div>
+            <div class="panel">Time: <span id="time">0</span>s</div>
+            <div class="panel" style="display:flex;gap:6px;align-items:center">
+                <button class="small" id="btn-pause">Pause</button>
+                <button class="small" id="btn-speed">Speed: 1x</button>
+                <label style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="toggle-sfx" checked/>
+                    SFX</label>
+                <button class="small" id="btn-reset">Reset</button>
+
+            </div>
+        </div>
+    </header>
+
+    <div class="field-container">
+        <div id="field">
+            <div class="castle player" style="left:12px">
+                <div class="castle-svg">
+                    <img src="svg/castle-with-a-flag-on-top-svgrepo-com.svg" alt="Player Castle"
+                         style="width:80px;height:80px;filter:brightness(1.2) saturate(1.3);">
+                </div>
+                <div class="castle-info">
+                    <div>Player</div>
+                    <div class="hp"><i id="player-hp" style="width:100%"></i></div>
+                    <div class="xp" style="width:90%;margin-top:8px"><i id="hero-xp" style="width:0%"></i></div>
+                </div>
+            </div>
+
+            <div id="battle"></div>
+
+            <div class="castle ai">
+                <div class="ai-castle-data-info" style="width: 100%;">
+                    <p style="width: 100%;">Gold: <span id="ai-gold"></span></p>
+                </div>
+                <div class="castle-svg">
+                    <img src="svg/castle-fortress-svgrepo-com.svg" alt="AI Castle"
+                         style="width:80px;height:80px;filter:brightness(0.8) saturate(0.7) hue-rotate(180deg);">
+                </div>
+                <div class="castle-info">
+                    <div>AI</div>
+                    <div class="hp"><i id="ai-hp" style="width:100%"></i></div>
+                </div>
+            </div>
+
+            <div class="ground"></div>
+        </div>
+    </div>
+
+    <div id="ui">
+        <div class="deck">
+            <button class="card" id="card-swordsman" data-unit="swordsman">
+                <span>Swordsman</span>
+                <span class="cost">50</span>
+            </button>
+            <button class="card" id="card-archer" data-unit="archer">
+                <span>Archer</span>
+                <span class="cost">100</span>
+            </button>
+            <button class="card" id="card-mage" data-unit="mage">
+                <span>Mage</span>
+                <span class="cost">120</span>
+            </button>
+            <button class="card" id="card-tank" data-unit="tank">
+                <span>Tank</span>
+                <span class="cost">200</span>
+            </button>
+            <button class="card" id="card-supreme" data-unit="supreme">
+                <span>Supreme Mage</span>
+                <span class="cost">200</span>
+            </button>
+            <button class="card" id="card-hero" data-unit="hero">
+                <span>Hero</span>
+                <span class="cost">400</span>
+            </button>
+            <button class="card" id="card-assassin" data-unit="assassin">
+                <span>Assassin</span>
+                <span class="cost">150</span>
+            </button>
+            <button class="card" id="card-necromancer" data-unit="necromancer">
+                <span>Necromancer</span>
+                <span class="cost">180</span>
+            </button>
+            <button class="card" id="card-giant" data-unit="giant">
+                <span>Giant</span>
+                <span class="cost">350</span>
+            </button>
+            <div class="hero-stats">
+                <div class="stat-row">
+                    <span>HP:</span>
+                    <span id="hero-hp-stat">150</span>
+                </div>
+                <div class="stat-row">
+                    <span>DMG:</span>
+                    <span id="hero-dmg-stat">25</span>
+                </div>
+                <div class="stat-row">
+                    <span>SPD:</span>
+                    <span id="hero-spd-stat">1.2</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-left">
+            <div class="panel">Hero Level: <span id="hero-level">1</span></div>
+            <div class="panel">Hero Exp: <span id="hero-exp-text">0/100</span>
+                <div class="xp" style="margin-top:6px"><i id="hero-xp-bar" style="width:0%"></i></div>
+            </div>
+        </div>
+
+        <div class="log" id="log"></div>
+    </div>
+
+    <footer>Click unit cards to deploy. AI mirrors generation and uses simple counters.</footer>
+</div>
+
+<script src="./js/config.js"></script>
+<script src="./js/state.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/fx.js"></script>
+<script src="./js/sound.js"></script>
+<script src="./js/ai.js"></script>
+<script src="./js/combat.js"></script>
+<script src="./js/game.js"></script>
+<script>
+    // Kick off game without modules
+    window.startGame();
+    // UI controls wiring
+    const btnPause = document.getElementById('btn-pause');
+    const btnSpeed = document.getElementById('btn-speed');
+    const chkSfx = document.getElementById('toggle-sfx');
+    const btnReset = document.getElementById('btn-reset');
+
+
+    window.loadProgress && window.loadProgress();
+    if (typeof window.state?.sfxEnabled === 'boolean') chkSfx.checked = window.state.sfxEnabled;
+
+    btnPause.addEventListener('click', () => {
+        window.state.paused = !window.state.paused;
+        btnPause.textContent = window.state.paused ? 'Resume' : 'Pause';
+        window.saveProgress && window.saveProgress();
+    });
+    btnSpeed.addEventListener('click', () => {
+        window.state.speedMultiplier = window.state.speedMultiplier === 1 ? 2 : 1;
+        btnSpeed.textContent = 'Speed: ' + window.state.speedMultiplier + 'x';
+        window.saveProgress && window.saveProgress();
+    });
+    chkSfx.addEventListener('change', () => {
+        window.state.sfxEnabled = chkSfx.checked;
+        window.saveProgress && window.saveProgress();
+    });
+    btnReset.addEventListener('click', () => {
+        try {
+            localStorage.removeItem('ccam_save');
+        } catch (_) {
+        }
+        location.reload();
+    });
+    // Audio unlock on first user gesture
+    window.addEventListener('click', () => {
+        try {
+            if (window.sfx && window.sfx.spawn) window.sfx.spawn();
+        } catch (_) {
+        }
+    }, {once: true});
+
+</script>
+</body>
+
+</html>
