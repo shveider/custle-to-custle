@@ -156,14 +156,30 @@
     const log = window.log;
     const sfx = window.sfx;
     state.ended = true;
+    try { localStorage.removeItem('ccam_save'); } catch (_) { }
+
+    const overlay = document.getElementById('game-over-overlay');
+    const title   = document.getElementById('game-over-title');
+    const msg     = document.getElementById('game-over-msg');
+
     if (state.playerHP <= 0) {
       log('Defeat! Your castle fell.');
       if (sfx && sfx.defeat) sfx.defeat();
-      try { localStorage.removeItem('ccam_save'); } catch (_) { }
+      if (overlay && title && msg) {
+        title.textContent = 'Defeat!';
+        title.className   = 'defeat';
+        msg.textContent   = 'Your castle has fallen. Try again!';
+        overlay.style.display = 'flex';
+      }
     } else {
       log('Victory! Enemy castle destroyed.');
       if (sfx && sfx.victory) sfx.victory();
-      try { localStorage.removeItem('ccam_save'); } catch (_) { }
+      if (overlay && title && msg) {
+        title.textContent = 'Victory!';
+        title.className   = 'victory';
+        msg.textContent   = 'The enemy castle lies in ruin!';
+        overlay.style.display = 'flex';
+      }
     }
   }
 })();

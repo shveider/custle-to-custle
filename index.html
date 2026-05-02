@@ -1,506 +1,748 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Castle Clash: Age of Mages — Demo</title>
+    <title>Castle Clash: Age of Mages</title>
     <style>
         :root {
-            --bg: #1e293b;
+            --bg: #0d0d1f;
             --panel: #0f1724;
             --text: #e6eef8;
-            --accent: #f59e0b
+            --accent: #f59e0b;
+            --accent2: #38bdf8;
+            --danger: #ef4444;
+            --success: #22c55e;
         }
 
-        html,
-        body {
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
             height: 100%;
             margin: 0;
             width: 100%;
-            font-family: Inter, Segoe UI, Arial;
-            background: linear-gradient(180deg, #0b1220 0%, #0f1724 100%);
-            color: var(--text)
+            font-family: Inter, 'Segoe UI', Arial, sans-serif;
+            background: radial-gradient(ellipse at top, #0d0d2b 0%, #050510 100%);
+            color: var(--text);
+            overflow-x: hidden;
         }
 
         #game {
-            width: 100%;
-            height: 100%;
-            margin: 24px auto;
-            border-radius: 10px;
+            max-width: 1860px;
+            margin: 16px auto;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(2, 6, 23, .7);
-            background: linear-gradient(180deg, #0b1220, #071021)
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,10,0.8);
+            background: #0c1220;
         }
 
         header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 18px;
-            background: rgba(255, 255, 255, 0.03)
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.35);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
         header h1 {
-            font-size: 16px;
-            margin: 0
+            font-size: 18px;
+            margin: 0;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #f59e0b, #fcd34d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .hud {
-            display: flex;
-            gap: 12px;
-            align-items: center
-        }
+        .hud { display: flex; gap: 10px; align-items: center; }
 
         .panel {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 8px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            padding: 6px 12px;
             border-radius: 8px;
-            font-size: 14px
+            font-size: 13px;
         }
 
-        .field-container {
-            width: 100%;
-            overflow: auto;
-        }
+        .panel strong { color: var(--accent); }
+
+        /* ========== BATTLEFIELD ========== */
+        .field-container { width: 100%; overflow-x: auto; }
 
         #field {
             position: relative;
             min-width: 1700px;
-            height: 420px;
-            background: linear-gradient(90deg, #12321a 0%, #2b5a2f 100%);
+            height: 460px;
+            background: linear-gradient(180deg,
+                #060718 0%,
+                #0d0a26 12%,
+                #26104e 26%,
+                #6a1a48 40%,
+                #c04826 52%,
+                #d96b18 60%,
+                #487826 70%,
+                #2a5a1c 80%,
+                #1c4016 100%
+            );
             display: flex;
-            align-items: center
+            align-items: center;
+            overflow: hidden;
         }
 
+        /* Stars */
+        .sky-stars {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            bottom: 38%;
+            pointer-events: none;
+            z-index: 1;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.95) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.75) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.85) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+            background-size: 63px 55px, 97px 83px, 137px 119px, 79px 73px, 47px 43px;
+            background-position: 12px 8px, 35px 22px, 55px 10px, 8px 30px, 28px 5px;
+        }
+
+        /* Moon */
+        .moon {
+            position: absolute;
+            top: 26px;
+            right: 240px;
+            width: 54px;
+            height: 54px;
+            background: radial-gradient(circle at 38% 36%, #fffbe8, #f5da70, #d4a820);
+            border-radius: 50%;
+            box-shadow:
+                0 0 22px rgba(255,230,100,0.65),
+                0 0 70px rgba(255,230,100,0.22),
+                0 0 130px rgba(255,200,50,0.08);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Far mountains */
+        .mountains-far {
+            position: absolute;
+            bottom: 80px;
+            left: 0; right: 0;
+            height: 210px;
+            background: linear-gradient(180deg, #1c2848 0%, #111c36 100%);
+            clip-path: polygon(
+                0% 100%, 2% 72%, 5% 85%, 8% 54%, 11% 70%, 14% 39%, 17% 60%,
+                21% 27%, 24% 50%, 27% 34%, 30% 55%, 33% 17%, 37% 44%, 40% 29%,
+                43% 52%, 46% 21%, 49% 48%, 52% 31%, 55% 54%, 58% 19%, 61% 44%,
+                64% 29%, 67% 52%, 70% 14%, 73% 41%, 76% 27%, 79% 50%, 82% 19%,
+                85% 44%, 88% 31%, 91% 54%, 94% 24%, 97% 47%, 100% 37%, 100% 100%
+            );
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.82;
+        }
+
+        /* Near hills */
+        .mountains-near {
+            position: absolute;
+            bottom: 80px;
+            left: 0; right: 0;
+            height: 148px;
+            background: linear-gradient(180deg, #1a3c1c 0%, #122814 100%);
+            clip-path: polygon(
+                0% 100%, 0% 68%, 4% 49%, 7% 70%, 11% 37%, 15% 59%, 18% 43%,
+                22% 68%, 26% 31%, 30% 55%, 33% 39%, 36% 63%, 40% 27%, 44% 51%,
+                47% 37%, 50% 62%, 54% 24%, 58% 49%, 61% 34%, 64% 60%, 68% 21%,
+                72% 47%, 75% 33%, 78% 57%, 82% 24%, 86% 49%, 89% 35%, 92% 59%,
+                95% 29%, 98% 51%, 100% 39%, 100% 100%
+            );
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* Tree silhouettes */
+        .tree-line {
+            position: absolute;
+            bottom: 80px;
+            left: 0; right: 0;
+            height: 72px;
+            background: #0f2210;
+            clip-path: polygon(
+                0% 100%, 0% 62%, 1.5% 37%, 3% 56%, 4.5% 21%, 6% 47%, 7.5% 27%,
+                9% 54%, 10.5% 11%, 12% 38%, 13.5% 19%, 15% 47%, 16.5% 27%,
+                18% 52%, 19.5% 14%, 21% 39%, 22.5% 23%, 24% 51%, 25.5% 17%,
+                27% 43%, 28.5% 27%, 30% 54%, 31.5% 17%, 33% 41%, 34.5% 25%,
+                36% 51%, 37.5% 14%, 39% 39%, 40.5% 21%, 42% 49%, 43.5% 17%,
+                45% 43%, 46.5% 27%, 48% 54%, 49.5% 19%, 51% 44%, 52.5% 27%,
+                54% 51%, 55.5% 14%, 57% 39%, 58.5% 23%, 60% 49%, 61.5% 17%,
+                63% 43%, 64.5% 27%, 66% 54%, 67.5% 17%, 69% 41%, 70.5% 25%,
+                72% 51%, 73.5% 14%, 75% 39%, 76.5% 21%, 78% 49%, 79.5% 17%,
+                81% 43%, 82.5% 27%, 84% 54%, 85.5% 19%, 87% 44%, 88.5% 27%,
+                90% 51%, 91.5% 14%, 93% 39%, 94.5% 21%, 96% 49%, 97.5% 17%,
+                99% 43%, 100% 29%, 100% 100%
+            );
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Ground */
+        .ground {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 80px;
+            background: linear-gradient(180deg, #3a6a2c 0%, #2a5020 35%, #1e3c16 100%);
+            border-top: 2px solid rgba(80,140,50,0.45);
+            z-index: 6;
+        }
+
+        .ground::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: linear-gradient(180deg, #52a038, #3a7028);
+        }
+
+        /* ========== CASTLES ========== */
         .castle {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 120px;
-            height: 160px;
+            width: 130px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center
+            z-index: 10;
         }
 
-        .castle.ai {
-            right: 12px;
-        }
+        .castle.player { left: 8px; }
+        .castle.ai { right: 8px; }
 
         .castle-svg {
-            position: relative;
-            z-index: 1;
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.65));
+            transition: filter 0.4s ease;
+        }
+
+        .castle.damaged .castle-svg {
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.65)) drop-shadow(0 0 10px rgba(255,100,40,0.45));
+        }
+
+        .castle.critical .castle-svg {
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.65)) drop-shadow(0 0 18px rgba(255,40,20,0.75));
+            animation: castlePulse 0.9s ease-in-out infinite;
+        }
+
+        @keyframes castlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.025); }
         }
 
         .castle-info {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 4px;
-            border-radius: 4px;
+            width: 100%;
+            background: rgba(0,0,0,0.72);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 5px 6px;
+            border-radius: 7px;
             z-index: 2;
             text-align: center;
+            margin-top: 5px;
+            font-size: 12px;
         }
 
+        .castle-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+
         .castle .hp {
-            width: 90%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 6px;
-            margin-top: 6px;
-            overflow: hidden
+            width: 92%;
+            height: 9px;
+            background: rgba(255,255,255,0.09);
+            border-radius: 5px;
+            margin: 0 auto;
+            overflow: hidden;
         }
 
         .castle .hp > i {
             display: block;
             height: 100%;
-            background: var(--accent);
-            width: 100%
+            background: var(--success);
+            width: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease, background 0.3s ease;
         }
 
+        .castle-hp-text {
+            font-size: 10px;
+            color: rgba(255,255,255,0.38);
+            margin-top: 2px;
+        }
+
+        /* ========== BATTLE AREA ========== */
         #battle {
             flex: 1;
             height: 100%;
             position: relative;
-            margin: 0 150px
+            margin: 0 150px;
+            z-index: 7;
         }
 
-        .ground {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 80px;
-            background: linear-gradient(180deg, #406a36, #2b4d27);
-            border-top: 3px solid rgba(0, 0, 0, .25)
-        }
-
+        /* ========== UNITS ========== */
         .unit {
             position: absolute;
             bottom: 80px;
-            width: 48px;
-            height: 48px;
-            border-radius: 6px;
+            width: 52px;
+            height: 52px;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            color: #071021
+            font-size: 23px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.55);
         }
 
-        .unit .icon {
-            position: relative;
-            z-index: 2
-        }
-
-        .unit .weapon {
+        .unit::after {
+            content: '';
             position: absolute;
-            z-index: 1;
-            opacity: .9
+            inset: 0;
+            border-radius: 9px;
+            border: 1.5px solid rgba(255,255,255,0.18);
+            pointer-events: none;
         }
 
-        .unit .weapon.sword {
-            width: 26px;
-            height: 6px;
-            background: linear-gradient(90deg, #d9d9d9, #9e9e9e);
-            border-radius: 2px;
-            transform: rotate(20deg) translate(8px, 8px);
-            box-shadow: 0 0 6px rgba(255, 255, 255, .4)
-        }
+        .unit.ai-unit { transform: scaleX(-1); }
 
-        .unit .weapon.sword.swing {
-            animation: swordSwing 0.5s ease-in-out infinite alternate;
-            transform-origin: left center
-        }
-
-        .unit .weapon.bow {
-            width: 2px;
-            height: 28px;
-            background: #6b3a1f;
-            box-shadow: inset 0 0 2px #000;
-            transform: translate(14px, 0)
-        }
-
-        .unit .weapon.bow.draw {
-            animation: bowDraw 1s ease-in-out infinite alternate;
-            transform-origin: left center
-        }
-
-        .unit .weapon.staff {
-            width: 6px;
-            height: 30px;
-            background: linear-gradient(#7a4e91, #3a1f6b);
-            border-radius: 3px;
-            transform: translate(12px, -4px)
-        }
-
-        .unit .weapon.staff.glow {
-            box-shadow: 0 0 10px rgba(120, 80, 255, .6);
-            animation: staffGlow 1.2s ease-in-out infinite alternate
-        }
-
-        .unit .weapon.crystal {
-            width: 18px;
-            height: 18px;
-            background: radial-gradient(circle, #c5b3ff, #6f5bd1);
-            border-radius: 4px;
-            transform: translate(14px, -6px)
-        }
-
-        .unit .weapon.blade {
-            width: 28px;
-            height: 6px;
-            background: linear-gradient(90deg, #fff6b3, #ffd54d);
-            border: 1px solid rgba(255, 215, 0, .6);
-            border-radius: 3px;
-            transform: rotate(-15deg) translate(8px, 10px);
-            box-shadow: 0 0 8px rgba(255, 215, 0, .6)
-        }
-
-        .unit .weapon.blade.swing {
-            animation: bladeSwing 0.5s ease-in-out infinite alternate;
-            transform-origin: left center
-        }
-
-        @keyframes swordSwing {
-            from {
-                transform: rotate(10deg) translate(8px, 8px)
-            }
-
-            to {
-                transform: rotate(35deg) translate(8px, 8px)
-            }
-        }
-
-        @keyframes bladeSwing {
-            from {
-                transform: rotate(-10deg) translate(8px, 10px)
-            }
-
-            to {
-                transform: rotate(10deg) translate(8px, 10px)
-            }
-        }
-
-        @keyframes bowDraw {
-            from {
-                height: 26px
-            }
-
-            to {
-                height: 30px
-            }
-        }
-
-        @keyframes staffGlow {
-            from {
-                box-shadow: 0 0 6px rgba(120, 80, 255, .4)
-            }
-
-            to {
-                box-shadow: 0 0 14px rgba(120, 80, 255, .9)
-            }
-        }
-
-        .unit.swordsman {
-            background: #d1bfa0
-        }
-
-        .unit.archer {
-            background: #ffd7a6
-        }
-
-        .unit.mage {
-            background: #bcd4ff
-        }
-
-        .unit.supreme {
-            background: #f3c6ff
-        }
-
+        .unit.swordsman { background: linear-gradient(145deg, #b0986c, #cdb882); }
+        .unit.archer    { background: linear-gradient(145deg, #c89650, #e2b878); }
+        .unit.mage      { background: linear-gradient(145deg, #6878b8, #8898d8); }
+        .unit.supreme   { background: linear-gradient(145deg, #7858b8, #9878d8); }
         .unit.hero {
-            background: #ffefc2;
-            border: 3px solid gold
+            background: linear-gradient(145deg, #b89030, #d8b050);
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 14px rgba(255,215,0,0.45), 0 2px 10px rgba(0,0,0,0.55);
         }
-
-        .unit.tank {
-            background: #a0a0a0
-        }
-
-        .unit.assassin {
-            background: #ff9aa6
-        }
-
-        .unit.necromancer {
-            background: #c9a0d1
-        }
-
+        .unit.tank      { background: linear-gradient(145deg, #686870, #888890); }
+        .unit.assassin  { background: linear-gradient(145deg, #b84060, #d86080); }
+        .unit.necromancer { background: linear-gradient(145deg, #704898, #9068b8); }
         .unit.giant {
-            background: #b5651d;
-            transform: scale(1.2);
+            background: linear-gradient(145deg, #784018, #a06030);
+            width: 62px;
+            height: 62px;
+            font-size: 28px;
         }
+        .unit.skeleton  { background: linear-gradient(145deg, #888890, #a8a8b0); }
 
+        /* ========== PROJECTILES ========== */
         .projectile {
             position: absolute;
-            width: 8px;
-            height: 8px;
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba(255, 255, 255, .5)
         }
 
         .projectile.arrow {
-            width: 10px;
-            height: 3px;
+            width: 16px; height: 4px;
             border-radius: 2px;
-            background: linear-gradient(90deg, #8b5a2b, #e0a96d)
+            background: linear-gradient(90deg, #6b3a1f, #e8b870);
+            box-shadow: 0 0 4px rgba(200,150,80,0.5);
         }
 
         .projectile.bolt {
-            background: radial-gradient(circle, #c5b3ff, #6f5bd1)
+            width: 11px; height: 11px;
+            background: radial-gradient(circle, #e8d8ff, #7050e0);
+            box-shadow: 0 0 10px rgba(160,110,255,0.85);
         }
 
         .projectile.fire {
-            background: radial-gradient(circle, #ffd29a, #ff7a00)
+            width: 11px; height: 11px;
+            background: radial-gradient(circle, #fff0a0, #ff5e00);
+            box-shadow: 0 0 12px rgba(255,120,0,0.85);
         }
 
+        /* ========== IMPACT ========== */
         .impact {
             position: absolute;
             border-radius: 50%;
             pointer-events: none;
-            box-shadow: 0 0 10px rgba(255, 255, 255, .5)
         }
 
+        /* ========== UNIT BADGES ========== */
+        .unit-badge {
+            position: absolute;
+            top: -15px;
+            left: 2px;
+            padding: 0 3px;
+            border-radius: 3px;
+            font-size: 10px;
+            line-height: 13px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .unit-hpbar {
+            position: absolute;
+            width: 46px;
+            height: 4px;
+            bottom: -7px;
+            left: 3px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 3px;
+        }
+
+        .unit-hpfill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.1s ease, background 0.3s ease;
+        }
+
+        .unit-rsbar {
+            position: absolute;
+            width: 46px;
+            height: 3px;
+            bottom: -12px;
+            left: 3px;
+            background: rgba(255,255,255,0.14);
+            border-radius: 3px;
+        }
+
+        .unit-rsfill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* ========== UI ========== */
         #ui {
-            padding: 10px;
+            padding: 12px 16px;
             display: flex;
-            gap: 12px;
+            gap: 14px;
             align-items: flex-start;
-            justify-content: space-between
+            justify-content: space-between;
+            background: rgba(0,0,0,0.22);
         }
 
+        /* ========== CARDS ========== */
         .deck {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
-            width: 650px;
+            width: 660px;
         }
 
         .card {
-            width: auto;
-            color: #a1a9b8;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 8px;
-            border-radius: 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text);
+            padding: 10px 6px 8px;
+            border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            user-select: none
+            user-select: none;
+            transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
         }
+
+        .card:hover:not(.cool) {
+            border-color: rgba(245,158,11,0.55);
+            background: rgba(245,158,11,0.09);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+        }
+
+        .card:active:not(.cool) { transform: translateY(-1px); }
 
         .card.cool {
-            opacity: .5;
-            position: relative;
-            overflow: hidden;
+            opacity: 0.42;
+            cursor: not-allowed;
         }
 
-        .card.cool::before {
-            content: "";
+        .card.cool::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: loading 1.5s infinite;
+            inset: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.8s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .card-icon { font-size: 22px; line-height: 1.1; }
+
+        .card-name {
+            font-size: 10px;
+            color: #8090a8;
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .card .cost {
+            font-size: 13px;
             font-weight: 700;
-            color: var(--accent)
+            color: var(--accent);
         }
 
+        .key-hint {
+            position: absolute;
+            top: 3px; right: 6px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.22);
+            font-weight: 600;
+        }
+
+        /* ========== HERO STATS ========== */
         .hero-stats {
-            margin-top: 8px;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 10px 12px;
             font-size: 12px;
         }
 
         .stat-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 2px;
+            align-items: center;
+            padding: 2px 0;
         }
 
-        .stat-row:last-child {
-            margin-bottom: 0;
-        }
+        .stat-row span:first-child { color: #607090; }
+        .stat-row span:last-child { font-weight: 700; color: var(--success); }
 
-        .stat-row span:first-child {
-            color: #aaa;
-        }
-
-        .stat-row span:last-child {
-            font-weight: bold;
-            color: #4CAF50;
-        }
-
-        .log {
-            width: 380px;
-            height: 320px;
-            background: #07101a;
-            border-radius: 8px;
-            padding: 8px;
-            overflow: auto;
-            font-size: 13px
-        }
-
+        /* ========== BOTTOM LEFT ========== */
         .bottom-left {
             display: flex;
             flex-direction: column;
-            gap: 6px
+            gap: 8px;
+            min-width: 160px;
         }
 
         .xp {
-            height: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 6px;
-            overflow: hidden
+            height: 7px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 4px;
+            overflow: hidden;
         }
 
         .xp > i {
+            display: block;
             height: 100%;
-            background: #38bdf8;
-            width: 0%
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+            border-radius: 4px;
+            transition: width 0.3s ease;
         }
 
-        button.small {
-            background: var(--accent);
-            color: #071021;
-            padding: 6px 10px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer
-        }
-
-        footer {
-            padding: 8px;
-            text-align: center;
+        /* ========== LOG ========== */
+        .log {
+            flex: 1;
+            max-width: 380px;
+            height: 300px;
+            background: rgba(0,0,0,0.32);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 8px 10px;
+            overflow-y: auto;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.5)
+            line-height: 1.55;
+            color: #70809a;
+        }
+
+        .log-entry { padding: 1px 0; }
+        .log-kill { color: #f87171; }
+        .log-player { color: #86efac; }
+        .log-level { color: #fde68a; font-weight: 600; }
+        .log-castle { color: #f97316; }
+
+        /* ========== BUTTONS ========== */
+        button.small {
+            background: rgba(245,158,11,0.12);
+            border: 1px solid rgba(245,158,11,0.28);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.12s ease;
+        }
+
+        button.small:hover {
+            background: rgba(245,158,11,0.22);
+            border-color: rgba(245,158,11,0.5);
+        }
+
+        /* ========== WIN/LOSS OVERLAY ========== */
+        #game-over-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.78);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        #game-over-content {
+            background: linear-gradient(145deg, #120820, #0d1424);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 20px;
+            padding: 56px 76px;
+            text-align: center;
+            box-shadow: 0 0 90px rgba(0,0,0,0.85), 0 0 50px rgba(245,158,11,0.08);
+            animation: overlayIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+
+        @keyframes overlayIn {
+            from { transform: scale(0.65); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+
+        #game-over-title {
+            font-size: 56px;
+            font-weight: 800;
+            margin: 0 0 10px;
+            letter-spacing: -1px;
+        }
+
+        #game-over-title.victory {
+            color: #fcd34d;
+            text-shadow: 0 0 40px rgba(252,211,77,0.5);
+        }
+
+        #game-over-title.defeat {
+            color: #ef4444;
+            text-shadow: 0 0 40px rgba(239,68,68,0.45);
+        }
+
+        #game-over-msg {
+            font-size: 17px;
+            color: #7080a0;
+            margin: 0 0 34px;
+        }
+
+        #game-over-content button {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: #0d1424;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 14px 38px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.14s ease;
+            box-shadow: 0 4px 22px rgba(245,158,11,0.32);
+        }
+
+        #game-over-content button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(245,158,11,0.45);
+        }
+
+        /* ========== AI GOLD INFO ========== */
+        .ai-castle-data-info {
+            font-size: 11px;
+            color: rgba(255,255,255,0.38);
+            text-align: center;
+            margin-bottom: 2px;
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.22);
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        /* Legacy animation keyframes kept for compatibility */
+        @keyframes swordSwing {
+            from { transform: rotate(10deg) translate(8px,8px); }
+            to   { transform: rotate(35deg) translate(8px,8px); }
+        }
+        @keyframes bladeSwing {
+            from { transform: rotate(-10deg) translate(8px,10px); }
+            to   { transform: rotate(10deg) translate(8px,10px); }
+        }
+        @keyframes bowDraw {
+            from { height: 26px; } to { height: 30px; }
+        }
+        @keyframes staffGlow {
+            from { box-shadow: 0 0 6px rgba(120,80,255,.4); }
+            to   { box-shadow: 0 0 14px rgba(120,80,255,.9); }
         }
     </style>
 </head>
 
 <body>
+
+<!-- Win / Loss overlay -->
+<div id="game-over-overlay">
+    <div id="game-over-content">
+        <h2 id="game-over-title" class="victory">Victory!</h2>
+        <p id="game-over-msg">Your castle stands triumphant!</p>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
 <div id="game">
     <header>
-        <h1>Castle Clash: Age of Mages — Demo</h1>
+        <h1>Castle Clash: Age of Mages</h1>
         <div class="hud">
-            <div class="panel">Gold: <span id="gold">0</span></div>
-            <div class="panel">Time: <span id="time">0</span>s</div>
-            <div class="panel" style="display:flex;gap:6px;align-items:center">
+            <div class="panel">💰 <strong id="gold">0</strong> Gold</div>
+            <div class="panel">⏱ <span id="time">0</span>s</div>
+            <div class="panel" style="display:flex;gap:8px;align-items:center">
                 <button class="small" id="btn-pause">Pause</button>
                 <button class="small" id="btn-speed">Speed: 1x</button>
-                <label style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="toggle-sfx" checked/>
-                    SFX</label>
+                <label style="display:flex;gap:4px;align-items:center;font-size:12px;cursor:pointer">
+                    <input type="checkbox" id="toggle-sfx" checked/> SFX
+                </label>
                 <button class="small" id="btn-reset">Reset</button>
-
             </div>
         </div>
     </header>
 
     <div class="field-container">
         <div id="field">
-            <div class="castle player" style="left:12px">
+            <!-- Atmosphere layers -->
+            <div class="sky-stars"></div>
+            <div class="moon"></div>
+            <div class="mountains-far"></div>
+            <div class="mountains-near"></div>
+            <div class="tree-line"></div>
+
+            <!-- Player Castle -->
+            <div class="castle player" id="castle-player">
                 <div class="castle-svg">
                     <img src="svg/castle-with-a-flag-on-top-svgrepo-com.svg" alt="Player Castle"
-                         style="width:80px;height:80px;filter:brightness(1.2) saturate(1.3);">
+                         style="width:92px;height:92px;filter:brightness(1.3) saturate(1.5);">
                 </div>
                 <div class="castle-info">
-                    <div>Player</div>
+                    <div class="castle-title">🏰 Player</div>
                     <div class="hp"><i id="player-hp" style="width:100%"></i></div>
-                    <div class="xp" style="width:90%;margin-top:8px"><i id="hero-xp" style="width:0%"></i></div>
+                    <div class="castle-hp-text" id="player-hp-text">1000</div>
                 </div>
             </div>
 
             <div id="battle"></div>
 
-            <div class="castle ai">
-                <div class="ai-castle-data-info" style="width: 100%;">
-                    <p style="width: 100%;">Gold: <span id="ai-gold"></span></p>
-                </div>
+            <!-- AI Castle -->
+            <div class="castle ai" id="castle-ai">
+                <div class="ai-castle-data-info">💰 <span id="ai-gold">0</span></div>
                 <div class="castle-svg">
                     <img src="svg/castle-fortress-svgrepo-com.svg" alt="AI Castle"
-                         style="width:80px;height:80px;filter:brightness(0.8) saturate(0.7) hue-rotate(180deg);">
+                         style="width:92px;height:92px;filter:brightness(0.82) saturate(0.58) hue-rotate(170deg);">
                 </div>
                 <div class="castle-info">
-                    <div>AI</div>
+                    <div class="castle-title">⚔️ Enemy</div>
                     <div class="hp"><i id="ai-hp" style="width:100%"></i></div>
+                    <div class="castle-hp-text" id="ai-hp-text">2000</div>
                 </div>
             </div>
 
@@ -511,60 +753,70 @@
     <div id="ui">
         <div class="deck">
             <button class="card" id="card-swordsman" data-unit="swordsman">
-                <span>Swordsman</span>
+                <span class="key-hint">1</span>
+                <span class="card-icon">⚔️</span>
+                <span class="card-name">Swordsman</span>
                 <span class="cost">50</span>
             </button>
             <button class="card" id="card-archer" data-unit="archer">
-                <span>Archer</span>
+                <span class="key-hint">2</span>
+                <span class="card-icon">🏹</span>
+                <span class="card-name">Archer</span>
                 <span class="cost">100</span>
             </button>
             <button class="card" id="card-mage" data-unit="mage">
-                <span>Mage</span>
+                <span class="key-hint">3</span>
+                <span class="card-icon">🔮</span>
+                <span class="card-name">Mage</span>
                 <span class="cost">120</span>
             </button>
             <button class="card" id="card-tank" data-unit="tank">
-                <span>Tank</span>
+                <span class="key-hint">4</span>
+                <span class="card-icon">🛡️</span>
+                <span class="card-name">Tank</span>
                 <span class="cost">200</span>
             </button>
             <button class="card" id="card-supreme" data-unit="supreme">
-                <span>Supreme Mage</span>
+                <span class="key-hint">5</span>
+                <span class="card-icon">✨</span>
+                <span class="card-name">Supreme</span>
                 <span class="cost">200</span>
             </button>
             <button class="card" id="card-hero" data-unit="hero">
-                <span>Hero</span>
+                <span class="key-hint">6</span>
+                <span class="card-icon">⭐</span>
+                <span class="card-name">Hero</span>
                 <span class="cost">400</span>
             </button>
             <button class="card" id="card-assassin" data-unit="assassin">
-                <span>Assassin</span>
+                <span class="key-hint">7</span>
+                <span class="card-icon">🗡️</span>
+                <span class="card-name">Assassin</span>
                 <span class="cost">150</span>
             </button>
             <button class="card" id="card-necromancer" data-unit="necromancer">
-                <span>Necromancer</span>
+                <span class="key-hint">8</span>
+                <span class="card-icon">💀</span>
+                <span class="card-name">Necromancer</span>
                 <span class="cost">180</span>
             </button>
             <button class="card" id="card-giant" data-unit="giant">
-                <span>Giant</span>
+                <span class="key-hint">9</span>
+                <span class="card-icon">🗿</span>
+                <span class="card-name">Giant</span>
                 <span class="cost">350</span>
             </button>
             <div class="hero-stats">
-                <div class="stat-row">
-                    <span>HP:</span>
-                    <span id="hero-hp-stat">150</span>
-                </div>
-                <div class="stat-row">
-                    <span>DMG:</span>
-                    <span id="hero-dmg-stat">25</span>
-                </div>
-                <div class="stat-row">
-                    <span>SPD:</span>
-                    <span id="hero-spd-stat">1.2</span>
-                </div>
+                <div class="stat-row"><span>HP</span><span id="hero-hp-stat">150</span></div>
+                <div class="stat-row"><span>DMG</span><span id="hero-dmg-stat">25</span></div>
+                <div class="stat-row"><span>SPD</span><span id="hero-spd-stat">1.2</span></div>
             </div>
         </div>
 
         <div class="bottom-left">
-            <div class="panel">Hero Level: <span id="hero-level">1</span></div>
-            <div class="panel">Hero Exp: <span id="hero-exp-text">0/100</span>
+            <div class="panel">⭐ Hero Level: <strong id="hero-level">1</strong></div>
+            <div class="panel">
+                XP: <span id="hero-exp-text">0/100</span>
                 <div class="xp" style="margin-top:6px"><i id="hero-xp-bar" style="width:0%"></i></div>
             </div>
         </div>
@@ -572,7 +824,7 @@
         <div class="log" id="log"></div>
     </div>
 
-    <footer>Click unit cards to deploy. AI mirrors generation and uses simple counters.</footer>
+    <footer>Press 1–9 to deploy units &nbsp;·&nbsp; G = +1000 gold &nbsp;·&nbsp; K = damage enemy castle</footer>
 </div>
 
 <script src="./js/config.js"></script>
@@ -584,14 +836,12 @@
 <script src="./js/combat.js"></script>
 <script src="./js/game.js"></script>
 <script>
-    // Kick off game without modules
     window.startGame();
-    // UI controls wiring
+
     const btnPause = document.getElementById('btn-pause');
     const btnSpeed = document.getElementById('btn-speed');
-    const chkSfx = document.getElementById('toggle-sfx');
-    const btnReset = document.getElementById('btn-reset');
-
+    const chkSfx   = document.getElementById('toggle-sfx');
+    const btnReset  = document.getElementById('btn-reset');
 
     window.loadProgress && window.loadProgress();
     if (typeof window.state?.sfxEnabled === 'boolean') chkSfx.checked = window.state.sfxEnabled;
@@ -611,21 +861,24 @@
         window.saveProgress && window.saveProgress();
     });
     btnReset.addEventListener('click', () => {
-        try {
-            localStorage.removeItem('ccam_save');
-        } catch (_) {
-        }
+        try { localStorage.removeItem('ccam_save'); } catch (_) {}
         location.reload();
     });
-    // Audio unlock on first user gesture
-    window.addEventListener('click', () => {
-        try {
-            if (window.sfx && window.sfx.spawn) window.sfx.spawn();
-        } catch (_) {
-        }
-    }, {once: true});
 
+    // 1–9 keyboard shortcuts
+    const keyUnitMap = {
+        '1':'swordsman','2':'archer','3':'mage','4':'tank','5':'supreme',
+        '6':'hero','7':'assassin','8':'necromancer','9':'giant'
+    };
+    window.addEventListener('keydown', (e) => {
+        const unit = keyUnitMap[e.key];
+        if (unit) document.getElementById('card-' + unit)?.click();
+    });
+
+    // Unlock audio on first gesture
+    window.addEventListener('click', () => {
+        try { if (window.sfx?.spawn) window.sfx.spawn(); } catch (_) {}
+    }, { once: true });
 </script>
 </body>
-
 </html>
