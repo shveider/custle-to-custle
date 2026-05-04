@@ -1,4 +1,5 @@
 const HP_COLORS = ['#ef4444', '#f59e0b', '#f59e0b', '#22c55e'];
+import { GameEvents } from '../core/Events.js';
 
 function hpColor(pct) {
     return pct > 0.5 ? HP_COLORS[3] : pct > 0.25 ? HP_COLORS[2] : pct > 0.1 ? HP_COLORS[1] : HP_COLORS[0];
@@ -30,7 +31,7 @@ export class HUD {
     set gold(v) { this._gold = v; this._dirty = true; }
 
     _setupListeners() {
-        this.game.events.on('game:restart', () => {
+        this.game.events.on(GameEvents.RESTART, () => {
             this._gold = 0;
             this._aiGold = 0;
             this._time = 0;
@@ -44,14 +45,14 @@ export class HUD {
             this._dirty = true;
         });
 
-        this.game.events.on('game:gold', (owner, amount) => {
+        this.game.events.on(GameEvents.GOLD, (owner, amount) => {
             if (owner === 'player') this._addFloatingGold(amount);
             this._dirty = true;
         });
-        this.game.events.on('game:getGold', (owner, cb) => {
+        this.game.events.on(GameEvents.GET_GOLD, (owner, cb) => {
             cb(owner === 'player' ? this._gold : this._aiGold);
         });
-        this.game.events.on('game:spendGold', (owner, amount) => {
+        this.game.events.on(GameEvents.SPEND_GOLD, (owner, amount) => {
             const key = owner === 'player' ? '_gold' : '_aiGold';
             if (this[key] >= amount) {
                 this[key] -= amount;
@@ -60,7 +61,7 @@ export class HUD {
             }
             return false;
         });
-        this.game.events.on('game:tick', () => {
+        this.game.events.on(GameEvents.TICK, () => {
             const rate = this.game.config.goldRate || 11;
             const aiRate = this.game.config.aiGoldRate || 17;
             this._gold += rate / 60;
@@ -68,20 +69,20 @@ export class HUD {
             this._time = this.game.time;
             this._dirty = true;
         });
-        this.game.events.on('castle:damage', (owner, amount) => {
+        this.game.events.on(GameEvents.CASTLE_DAMAGE, (owner, amount) => {
             const castle = this.game.entities.getCastle(owner);
             if (castle) {
                 castle.damage(amount);
                 this._dirty = true;
             }
         });
-        this.game.events.on('hero:exp', (amount) => {
+        this.game.events.on(GameEvents.HERO_EXP, (amount) => {
             this._heroExp += amount;
             while (this._heroExp >= this._heroExpToNext) {
                 this._heroExp -= this._heroExpToNext;
                 this._heroLevel++;
                 this._heroExpToNext = Math.floor(this._heroExpToNext * 1.4);
-                this.game.events.emit('hero:levelUp', this._heroLevel);
+                this.game.events.emit(GameEvents.HERO_LEVEL_UP, this._heroLevel);
             }
             this._dirty = true;
         });

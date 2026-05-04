@@ -1,3 +1,5 @@
+import { GameEvents } from '../core/Events.js';
+
 const PROJECTILE_KIND = {
     archer: 'arrow',
     mage: 'bolt',
@@ -22,8 +24,8 @@ export class CombatSystem {
     }
 
     _setupListeners() {
-        this.game.events.on('unit:attack', (attacker, target) => this._resolveAttack(attacker, target));
-        this.game.events.on('unit:attackCastle', (attacker) => this._attackCastle(attacker));
+        this.game.events.on(GameEvents.UNIT_ATTACK, (attacker, target) => this._resolveAttack(attacker, target));
+        this.game.events.on(GameEvents.UNIT_ATTACK_CASTLE, (attacker) => this._attackCastle(attacker));
     }
 
     _resolveAttack(attacker, target) {
@@ -49,7 +51,7 @@ export class CombatSystem {
         this.fx.spawnImpact(target.x, impactKind);
         this.fx.spawnDamageNumber(target.x, dmg, false);
 
-        this.game.events.emit('combat:hit', attacker, target, dmg);
+        this.game.events.emit(GameEvents.COMBAT_HIT, attacker, target, dmg);
 
         this._tryCriticalStrike(attacker, target, dmg);
         this._tryLineAttack(attacker, target, dmg);
@@ -86,7 +88,7 @@ export class CombatSystem {
 
         const castleOwner = attacker.owner === 'player' ? 'ai' : 'player';
         this.game.damageCastle(castleOwner, dmg);
-        this.game.events.emit('combat:castleHit', attacker, castleOwner, dmg);
+        this.game.events.emit(GameEvents.COMBAT_CASTLE_HIT, attacker, castleOwner, dmg);
     }
 
     _tryShieldBlock(target) {
@@ -94,7 +96,7 @@ export class CombatSystem {
         if (chance !== undefined && Math.random() < chance) {
             this.fx.spawnShieldBlock(target.x);
             this.fx.spawnImpact(target.x, 'shield');
-            this.game.events.emit('combat:blocked', target);
+            this.game.events.emit(GameEvents.COMBAT_BLOCKED, target);
             return true;
         }
         return false;
@@ -111,7 +113,7 @@ export class CombatSystem {
                 target.damage(critDmg);
                 this.fx.spawnImpact(target.x, 'spark', true);
                 this.fx.spawnDamageNumber(target.x, critDmg, true);
-                this.game.events.emit('combat:crit', attacker, target, critDmg);
+                this.game.events.emit(GameEvents.COMBAT_CRIT, attacker, target, critDmg);
             }
         }
     }
@@ -172,7 +174,7 @@ export class CombatSystem {
 
         const offset = attacker.special.summonOffset || 30;
         const sx = attacker.x + (attacker.dir * offset);
-        this.game.events.emit('unit:summon', attacker.owner, 'skeleton', { x: sx, parent: attacker });
+        this.game.events.emit(GameEvents.UNIT_SUMMON, attacker.owner, 'skeleton', { x: sx, parent: attacker });
     }
 
     _attackLineToCastle(attacker, dmg) {
@@ -194,8 +196,8 @@ export class CombatSystem {
             this.game.addGold(attacker.owner, killGold);
         }
         if (attacker.owner === 'player') {
-            this.game.events.emit('hero:exp', 10 + Math.floor(target.maxHp / 10));
+            this.game.events.emit(GameEvents.HERO_EXP, 10 + Math.floor(target.maxHp / 10));
         }
-        this.game.events.emit('unit:killed', attacker, target);
+        this.game.events.emit(GameEvents.UNIT_KILLED, attacker, target);
     }
 }

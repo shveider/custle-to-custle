@@ -1,4 +1,5 @@
 import { Castle } from '../entities/Castle.js';
+import { GameEvents, EntityEvents } from './Events.js';
 
 export class GameEngine {
     constructor(game, engineConfig) {
@@ -21,7 +22,7 @@ export class GameEngine {
         const roster = cfg.unitRoster;
         const cards = cfg.cardDeck;
 
-        game.events.on('game:tick', (dt, time) => {
+        game.events.on(GameEvents.TICK, (dt, time) => {
             this._updateUnits(dt, time * 1000);
             defense.update(time * 1000);
 
@@ -38,35 +39,35 @@ export class GameEngine {
             roster.update();
         });
 
-        game.events.on('unit:attack', (attacker) => {
+        game.events.on(GameEvents.UNIT_ATTACK, (attacker) => {
             attacker.triggerAnim('attacking', 250, this.game.time * 1000);
         });
 
-        game.events.on('combat:hit', (attacker, target) => {
+        game.events.on(GameEvents.COMBAT_HIT, (attacker, target) => {
             target.triggerAnim('hit', 150, this.game.time * 1000);
         });
 
-        game.events.on('event:log', (msg) => this._log(msg));
+        game.events.on(GameEvents.EVENT_LOG, (msg) => this._log(msg));
 
-        game.events.on('unit:killed', (attacker, target) => {
+        game.events.on(GameEvents.UNIT_KILLED, (attacker, target) => {
             this._log((attacker.isCastle ? 'Castle' : attacker.owner) + ' killed ' + target.defName);
         });
 
-        game.events.on('combat:castleHit', (attacker, castleOwner, dmg) => {
+        game.events.on(GameEvents.COMBAT_CASTLE_HIT, (attacker, castleOwner, dmg) => {
             this._log((attacker.owner === 'player' ? '' : 'AI ') + attacker.defName + ' bombarded castle for ' + dmg);
         });
 
-        game.events.on('combat:blocked', (target) => {
+        game.events.on(GameEvents.COMBAT_BLOCKED, (target) => {
             this._log(target.owner + ' ' + target.defName + ' blocked the attack!');
         });
 
-        game.events.on('combat:crit', (attacker, target, dmg) => {
+        game.events.on(GameEvents.COMBAT_CRIT, (attacker, target, dmg) => {
             this._log(attacker.defName + ' critical strike for ' + Math.round(dmg) + '!');
         });
 
-        game.events.on('game:end', (winner) => this._showGameOver(winner));
+        game.events.on(GameEvents.END, (winner) => this._showGameOver(winner));
 
-        game.events.on('hero:levelUp', (level) => {
+        game.events.on(GameEvents.HERO_LEVEL_UP, (level) => {
             this._log('Hero leveled up to ' + level + '!');
         });
 
@@ -120,14 +121,14 @@ export class GameEngine {
 
             const nearest = game.entities.nearestEnemyTo(u, u.range);
             if (nearest && u.canAttack(gameTimeMs)) {
-                game.events.emit('unit:attack', u, nearest);
+                game.events.emit(GameEvents.UNIT_ATTACK, u, nearest);
                 u.markAttacked(gameTimeMs);
             } else if (!nearest) {
                 const castleX = u.owner === 'player' ? game.config.aiCastleX : game.config.playerCastleX;
                 const distToCastle = Math.abs(u.x - castleX);
 
                 if (u.isRanged && distToCastle <= u.range && u.canAttack(gameTimeMs)) {
-                    game.events.emit('unit:attackCastle', u);
+                    game.events.emit(GameEvents.UNIT_ATTACK_CASTLE, u);
                     u.markAttacked(gameTimeMs);
                 } else {
                     u.move(effSec, battleLeft, battleRight);
@@ -174,7 +175,7 @@ export class GameEngine {
             });
         }
 
-        this.game.events.on('game:restart', () => {
+        this.game.events.on(GameEvents.RESTART, () => {
             this._createCastles();
             this._registerUnits();
             this.game.plugins.all.forEach(p => p.init(this.game));

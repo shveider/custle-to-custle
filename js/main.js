@@ -69,9 +69,9 @@ const EVENT_REGISTRY = [
         message: 'Enemy swordsman incoming!',
     },
     {
-        id: 'player_gold_bonus_15s',
-        trigger: { type: 'time', value: 15 },
-        action: { type: 'gold_bonus', owner: 'player', amount: 600 },
+        id: 'player_gold_bonus_50s',
+        trigger: { type: 'time', value: 50 },
+        action: { type: 'gold_bonus', owner: 'player', amount: 800 },
         once: true,
         title: '💰 Supply Drop!',
         message: 'You receive 600 gold reinforcements!',

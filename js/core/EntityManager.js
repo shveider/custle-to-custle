@@ -1,4 +1,5 @@
 import { EventBus } from './EventBus.js';
+import { EntityEvents } from './Events.js';
 
 export class EntityManager {
     constructor() {
@@ -22,9 +23,9 @@ export class EntityManager {
             this._castles.set(entity.id, entity);
         }
 
-        this.events.emit('entity:added', entity);
-        if (entity.isUnit) this.events.emit('unit:added', entity);
-        if (entity.isCastle) this.events.emit('castle:added', entity);
+        this.events.emit(EntityEvents.ADDED, entity);
+        if (entity.isUnit) this.events.emit(EntityEvents.UNIT_ADDED, entity);
+        if (entity.isCastle) this.events.emit(EntityEvents.CASTLE_ADDED, entity);
     }
 
     remove(entity) {
@@ -37,9 +38,9 @@ export class EntityManager {
         if (wasUnit) this._units.delete(entity.id);
         if (wasCastle) this._castles.delete(entity.id);
 
-        if (wasUnit) this.events.emit('unit:removed', entity);
-        if (wasCastle) this.events.emit('castle:removed', entity);
-        this.events.emit('entity:removed', entity);
+        if (wasUnit) this.events.emit(EntityEvents.UNIT_REMOVED, entity);
+        if (wasCastle) this.events.emit(EntityEvents.CASTLE_REMOVED, entity);
+        this.events.emit(EntityEvents.REMOVED, entity);
     }
 
     getById(id) {

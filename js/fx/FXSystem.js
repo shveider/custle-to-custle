@@ -1,5 +1,6 @@
 import { Projectile } from '../entities/Projectile.js';
 import { Effect } from '../entities/Effect.js';
+import { GameEvents } from '../core/Events.js';
 
 const PROJECTILE_SPEED = { arrow: 420, bolt: 360, fire: 300, lightning: 500 };
 const IMPACT_LIFE = { hit: 220, spark: 180, magic: 260, lightning: 200, shield: 240, summon: 300 };
@@ -38,11 +39,11 @@ export class FXSystem {
     }
 
     _setupListeners() {
-        this.game.events.on('game:tick', (dt) => this.update(dt));
-        this.game.events.on('game:restart', () => {
+        this.game.events.on(GameEvents.TICK, (dt) => this.update(dt));
+        this.game.events.on(GameEvents.RESTART, () => {
             this.clear();
             this._nextProjId = 1;
-            this.game.events.on('game:tick', (dt) => this.update(dt));
+            this.game.events.on(GameEvents.TICK, (dt) => this.update(dt));
         });
     }
 

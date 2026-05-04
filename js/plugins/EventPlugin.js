@@ -1,4 +1,5 @@
 import { EventBanner } from '../ui/EventBanner.js';
+import { GameEvents } from '../core/Events.js';
 
 export class EventPlugin {
     constructor(name = 'events', registry = []) {
@@ -12,7 +13,7 @@ export class EventPlugin {
 
     init(game) {
         this.game = game;
-        game.events.on('game:tick', (dt) => this.update(dt));
+        game.events.on(GameEvents.TICK, (dt) => this.update(dt));
     }
 
     update(dt) {
@@ -44,8 +45,8 @@ export class EventPlugin {
     }
 
     _execute(evt) {
-        if (evt.title) this.game.events.emit('event:log', evt.title);
-        if (evt.message) this.game.events.emit('event:log', evt.message);
+        if (evt.title) this.game.events.emit(GameEvents.EVENT_LOG, evt.title);
+        if (evt.message) this.game.events.emit(GameEvents.EVENT_LOG, evt.message);
         if (evt.title && evt.message) this.banner.show(evt.title, evt.message);
 
         const action = evt.action;

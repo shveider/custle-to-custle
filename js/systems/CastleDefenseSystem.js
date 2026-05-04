@@ -1,3 +1,5 @@
+import { GameEvents } from '../core/Events.js';
+
 export class CastleDefenseSystem {
     constructor(game, fxSystem) {
         this.game = game;
@@ -22,7 +24,7 @@ export class CastleDefenseSystem {
             this.fx.spawnImpact(enemy.x, 'lightning');
             this.fx.spawnDamageNumber(enemy.x, castle.defenseDamage, false);
 
-            this.game.events.emit('castle:defense', castle, enemy);
+            this.game.events.emit(GameEvents.CASTLE_DEFENSE, castle, enemy);
 
             if (!enemy.isAlive) {
                 this._onKill(castle, enemy);
@@ -35,6 +37,6 @@ export class CastleDefenseSystem {
         if (killGold > 0) {
             this.game.addGold(castle.owner, killGold);
         }
-        this.game.events.emit('unit:killed', castle, target);
+        this.game.events.emit(GameEvents.UNIT_KILLED, castle, target);
     }
 }

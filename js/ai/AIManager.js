@@ -1,4 +1,5 @@
 import { getWaveCompositions, calcWaveCost, flattenWaveUnits } from './WaveCompositions.js';
+import { GameEvents } from '../core/Events.js';
 
 const Phase = { IDLE: 'idle', PLANNING: 'planning', ATTACKING: 'attacking', DEFENDING: 'defending' };
 
@@ -39,16 +40,16 @@ export class AIManager {
     }
 
     _setupListeners() {
-        this.game.events.on('unit:spawn', (owner, defName) => {
+        this.game.events.on(GameEvents.UNIT_SPAWN, (owner, defName) => {
             if (owner === 'player') {
                 this._recentPlayerSpawns.push(defName);
                 if (this._recentPlayerSpawns.length > 5) this._recentPlayerSpawns.shift();
             }
         });
 
-        this.game.events.on('game:tick', (dt) => this.update(dt));
+        this.game.events.on(GameEvents.TICK, (dt) => this.update(dt));
 
-        this.game.events.on('game:restart', () => this._resetState());
+        this.game.events.on(GameEvents.RESTART, () => this._resetState());
     }
 
     _resetState() {

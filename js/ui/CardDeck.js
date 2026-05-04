@@ -1,3 +1,5 @@
+import { GameEvents } from '../core/Events.js';
+
 const UNIT_TOOLTIPS = {
     swordsman: { desc: 'Fast melee infantry', ability: 'Shield Block (20% chance to negate damage)' },
     archer: { desc: 'Versatile ranged attacker', ability: 'Piercing (+50% damage vs Hero units)' },
@@ -93,7 +95,7 @@ export class CardDeck {
 
     _spawn(unitKey) {
         if (unitKey === 'hero') {
-            this.game.events.emit('hero:deploy');
+            this.game.events.emit(GameEvents.HERO_DEPLOY);
             return;
         }
 
@@ -105,7 +107,7 @@ export class CardDeck {
         if (gold >= cost) {
             this.game._hud.gold -= cost;
             this.game.spawnUnit('player', unitKey);
-            this.game.events.emit('hero:exp', Math.round(cost * 0.05));
+            this.game.events.emit(GameEvents.HERO_EXP, Math.round(cost * 0.05));
         }
     }
 

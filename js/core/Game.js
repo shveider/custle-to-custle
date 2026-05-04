@@ -1,6 +1,7 @@
 import { EventBus } from './EventBus.js';
 import { EntityManager } from './EntityManager.js';
 import { PluginManager } from './PluginManager.js';
+import { GameEvents } from './Events.js';
 
 export class Game {
     constructor(config) {
@@ -23,13 +24,13 @@ export class Game {
         this.running = true;
         this.ended = false;
         this._lastTime = performance.now();
-        this.events.emit('game:start');
+        this.events.emit(GameEvents.START);
         this._loop();
     }
 
     stop() {
         this.running = false;
-        this.events.emit('game:stop');
+        this.events.emit(GameEvents.STOP);
     }
 
     restart() {
@@ -47,49 +48,49 @@ export class Game {
             if (p.destroy) p.destroy();
         });
 
-        this.events.emit('game:restart');
+        this.events.emit(GameEvents.RESTART);
         this.start();
     }
 
     togglePause() {
         this.paused = !this.paused;
-        this.events.emit('game:pause', this.paused);
+        this.events.emit(GameEvents.PAUSE, this.paused);
         return this.paused;
     }
 
     setSpeed(multiplier) {
         this.speedMultiplier = Math.max(1, Math.min(4, multiplier));
-        this.events.emit('game:speed', this.speedMultiplier);
+        this.events.emit(GameEvents.SPEED, this.speedMultiplier);
     }
 
     end(winner) {
         if (this.ended) return;
         this.ended = true;
-        this.events.emit('game:end', winner);
+        this.events.emit(GameEvents.END, winner);
         setTimeout(() => this.stop(), 100);
     }
 
     addGold(owner, amount) {
-        this.events.emit('game:gold', owner, amount);
+        this.events.emit(GameEvents.GOLD, owner, amount);
     }
 
     spendGold(owner, amount) {
-        const canSpend = this.events.emit('game:spendGold', owner, amount);
+        const canSpend = this.events.emit(GameEvents.SPEND_GOLD, owner, amount);
         return canSpend;
     }
 
     getGold(owner) {
         let gold = 0;
-        this.events.emit('game:getGold', owner, (value) => { gold = value; });
+        this.events.emit(GameEvents.GET_GOLD, owner, (value) => { gold = value; });
         return gold;
     }
 
     spawnUnit(owner, defName, options = {}) {
-        this.events.emit('unit:spawn', owner, defName, options);
+        this.events.emit(GameEvents.UNIT_SPAWN, owner, defName, options);
     }
 
     damageCastle(owner, amount) {
-        this.events.emit('castle:damage', owner, amount);
+        this.events.emit(GameEvents.CASTLE_DAMAGE, owner, amount);
     }
 
     getCastleHp(owner) {
@@ -127,6 +128,6 @@ export class Game {
         const effDt = fixedDt * this.speedMultiplier;
         this.time += effDt / 1000;
 
-        this.events.emit('game:tick', effDt, this.time);
+        this.events.emit(GameEvents.TICK, effDt, this.time);
     }
 }

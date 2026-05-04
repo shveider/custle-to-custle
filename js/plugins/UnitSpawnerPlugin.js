@@ -1,5 +1,6 @@
 import { Castle } from '../entities/Castle.js';
 import { Skeleton } from '../units/Skeleton.js';
+import { GameEvents, EntityEvents } from '../core/Events.js';
 
 export class UnitSpawnerPlugin {
     constructor(name = 'unitSpawner') {
@@ -21,23 +22,23 @@ export class UnitSpawnerPlugin {
         this._aiHeroAvailable = true;
         this._aiHeroRespawn = 0;
 
-        game.events.on('unit:spawn', (owner, defName, options = {}) => {
+        game.events.on(GameEvents.UNIT_SPAWN, (owner, defName, options = {}) => {
             this._spawn(owner, defName, options);
         });
 
-        game.events.on('hero:deploy', () => {
+        game.events.on(GameEvents.HERO_DEPLOY, () => {
             this._spawnHero('player');
         });
 
-        game.events.on('unit:summon', (owner, defName, options) => {
+        game.events.on(GameEvents.UNIT_SUMMON, (owner, defName, options) => {
             this._spawn(owner, defName, options);
         });
 
-        game.entities.events.on('unit:removed', (unit) => {
+        game.entities.events.on(EntityEvents.UNIT_REMOVED, (unit) => {
             this._onUnitRemoved(unit);
         });
 
-        game.events.on('game:tick', (dt) => this._update(dt));
+        game.events.on(GameEvents.TICK, (dt) => this._update(dt));
     }
 
     destroy() {
@@ -61,7 +62,7 @@ export class UnitSpawnerPlugin {
                 this._heroRespawn = 0;
                 this._heroAvailable = true;
                 this._heroCooldown = 0;
-                this.game.events.emit('hero:available');
+                this.game.events.emit(GameEvents.HERO_AVAILABLE);
             }
         }
 
@@ -111,7 +112,7 @@ export class UnitSpawnerPlugin {
         }
 
         this.game.entities.add(unit);
-        this.game.events.emit('unit:spawned', unit);
+        this.game.events.emit(GameEvents.UNIT_SPAWNED, unit);
     }
 
     _spawnHero(owner) {
@@ -142,7 +143,7 @@ export class UnitSpawnerPlugin {
             this._aiHeroAvailable = false;
         }
 
-        this.game.events.emit('unit:spawned', unit);
+        this.game.events.emit(GameEvents.UNIT_SPAWNED, unit);
     }
 
     _spawnSkeleton(owner, x) {

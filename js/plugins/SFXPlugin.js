@@ -1,3 +1,5 @@
+import { GameEvents } from '../core/Events.js';
+
 let audioCtx;
 
 function getCtx() {
@@ -36,14 +38,14 @@ export class SFXPlugin {
             try { getCtx().resume(); } catch (_) { }
         }, { once: true });
 
-        game.events.on('combat:hit', () => { if (this.enabled) play(180, 100, 'square', 0.06 * this.volume * 2); });
-        game.events.on('combat:crit', () => { if (this.enabled) play(280, 140, 'triangle', 0.07 * this.volume * 2); });
-        game.events.on('game:start', () => { if (this.enabled) play(240, 120, 'sine', 0.04 * this.volume * 2); });
-        game.events.on('unit:killed', (attacker) => {
+        game.events.on(GameEvents.COMBAT_HIT, () => { if (this.enabled) play(180, 100, 'square', 0.06 * this.volume * 2); });
+        game.events.on(GameEvents.COMBAT_CRIT, () => { if (this.enabled) play(280, 140, 'triangle', 0.07 * this.volume * 2); });
+        game.events.on(GameEvents.START, () => { if (this.enabled) play(240, 120, 'sine', 0.04 * this.volume * 2); });
+        game.events.on(GameEvents.UNIT_KILLED, (attacker) => {
             if (this.enabled && attacker.defName === 'mage') play(520, 180, 'sine', 0.05 * this.volume * 2);
             else if (this.enabled && attacker.defName === 'archer') play(360, 80, 'sawtooth', 0.04 * this.volume * 2);
         });
-        game.events.on('game:end', (winner) => {
+        game.events.on(GameEvents.END, (winner) => {
             if (this.enabled) {
                 if (winner === 'player') play(660, 400, 'triangle', 0.06 * this.volume * 2);
                 else play(160, 400, 'square', 0.06 * this.volume * 2);

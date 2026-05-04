@@ -1,3 +1,5 @@
+import { GameEvents } from '../core/Events.js';
+
 const SVG_CACHE = {};
 const aiFlip = 'scaleX(-1)';
 const noFlip = '';
@@ -111,7 +113,7 @@ export class UnitRenderer {
         this._projectilePools = new Map();
         this._effectPools = new Map();
 
-        this.game.events.on('game:restart', () => this.destroy());
+        this.game.events.on(GameEvents.RESTART, () => this.destroy());
     }
 
     render() {
