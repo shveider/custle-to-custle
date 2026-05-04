@@ -178,7 +178,6 @@ export class GameEngine {
         this.game.events.on(GameEvents.RESTART, () => {
             this._createCastles();
             this._registerUnits();
-            this.game.plugins.all.forEach(p => p.init(this.game));
         });
 
         if (refs.volumeSlider) {

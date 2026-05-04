@@ -21,7 +21,7 @@ html, body {
 }
 
 #game {
-    max-width: 4200px;
+    max-width: 3200px;
     margin: 16px auto;
     border-radius: 14px;
     overflow: hidden;
@@ -114,7 +114,7 @@ header h1 {
 
 #field {
     position: relative;
-    min-width: 4000px;
+    min-width: 3000px;
     height: 460px;
     background: linear-gradient(180deg,
         #060718 0%, #0d0a26 12%, #26104e 26%, #6a1a48 40%,

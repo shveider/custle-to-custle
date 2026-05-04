@@ -10,15 +10,17 @@ export class Hero extends Unit {
         type: 'hero',
         special: { unique: true },
         resourceType: 'stamina',
-        resourceMax: 120,
+        resourceMax: 125,
         resourceRegenPerSec: 20,
         resourceCostPerAttack: 25,
     };
 
     static create(id, owner, overrides = {}, heroLevel = 1) {
-        const hp = this.STATS.hp + (heroLevel - 1) * 40;
-        const dmg = this.STATS.dmg + (heroLevel - 1) * 6;
-        const stats = { ...this.STATS, hp, dmg, ...overrides };
+        const hp = this.STATS.hp + (heroLevel - 1) * 50;
+        const dmg = this.STATS.dmg + (heroLevel - 1) * 8;
+        const resourceMax = this.STATS.resourceMax + (heroLevel - 1);
+        const speed = this.STATS.speed + (heroLevel - 1) * 0.1;
+        const stats = { ...this.STATS, hp, dmg, resourceMax, speed, ...overrides };
         return new this(id, owner, stats);
     }
 }

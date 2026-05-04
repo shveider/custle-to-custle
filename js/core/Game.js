@@ -34,9 +34,9 @@ export class Game {
     }
 
     restart() {
+        this.running = false;
         this.entities.destroy();
         this.entities = new EntityManager();
-        this.events.clear();
         this.time = 0;
         this.paused = false;
         this.ended = false;
@@ -49,6 +49,11 @@ export class Game {
         });
 
         this.events.emit(GameEvents.RESTART);
+
+        this.plugins.all.forEach(p => {
+            if (p.init) p.init(this);
+        });
+
         this.start();
     }
 

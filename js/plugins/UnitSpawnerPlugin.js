@@ -11,6 +11,7 @@ export class UnitSpawnerPlugin {
         this._aiHeroCooldown = 0;
         this._aiHeroAvailable = true;
         this._aiHeroRespawn = 0;
+        this._boundHandlers = [];
     }
 
     init(game) {
@@ -22,26 +23,43 @@ export class UnitSpawnerPlugin {
         this._aiHeroAvailable = true;
         this._aiHeroRespawn = 0;
 
-        game.events.on(GameEvents.UNIT_SPAWN, (owner, defName, options = {}) => {
+        const onSpawn = (owner, defName, options = {}) => {
             this._spawn(owner, defName, options);
-        });
-
-        game.events.on(GameEvents.HERO_DEPLOY, () => {
+        };
+        const onHeroDeploy = () => {
             this._spawnHero('player');
-        });
-
-        game.events.on(GameEvents.UNIT_SUMMON, (owner, defName, options) => {
+        };
+        const onSummon = (owner, defName, options) => {
             this._spawn(owner, defName, options);
-        });
-
-        game.entities.events.on(EntityEvents.UNIT_REMOVED, (unit) => {
+        };
+        const onUnitRemoved = (unit) => {
             this._onUnitRemoved(unit);
-        });
+        };
+        const onTick = (dt) => this._update(dt);
 
-        game.events.on(GameEvents.TICK, (dt) => this._update(dt));
+        const gameEvents = game.events;
+        const entityEvents = game.entities.events;
+
+        gameEvents.on(GameEvents.UNIT_SPAWN, onSpawn);
+        gameEvents.on(GameEvents.HERO_DEPLOY, onHeroDeploy);
+        gameEvents.on(GameEvents.UNIT_SUMMON, onSummon);
+        gameEvents.on(GameEvents.TICK, onTick);
+        entityEvents.on(EntityEvents.UNIT_REMOVED, onUnitRemoved);
+
+        this._boundHandlers = [
+            [gameEvents, GameEvents.UNIT_SPAWN, onSpawn],
+            [gameEvents, GameEvents.HERO_DEPLOY, onHeroDeploy],
+            [gameEvents, GameEvents.UNIT_SUMMON, onSummon],
+            [gameEvents, GameEvents.TICK, onTick],
+            [entityEvents, EntityEvents.UNIT_REMOVED, onUnitRemoved],
+        ];
     }
 
     destroy() {
+        for (const [bus, event, handler] of this._boundHandlers) {
+            bus.off(event, handler);
+        }
+        this._boundHandlers = [];
         this._heroCooldown = 0;
         this._heroAvailable = true;
         this._heroRespawn = 0;

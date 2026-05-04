@@ -43,6 +43,7 @@ export class HUD {
             this._aiCastleHp = 0;
             this._aiCastleMaxHp = 0;
             this._dirty = true;
+            this._updateHeroStatsUI();
         });
 
         this.game.events.on(GameEvents.GOLD, (owner, amount) => {
@@ -82,10 +83,38 @@ export class HUD {
                 this._heroExp -= this._heroExpToNext;
                 this._heroLevel++;
                 this._heroExpToNext = Math.floor(this._heroExpToNext * 1.4);
+                this._upgradeHeroStats();
                 this.game.events.emit(GameEvents.HERO_LEVEL_UP, this._heroLevel);
             }
             this._dirty = true;
         });
+    }
+
+    _upgradeHeroStats() {
+        const level = this._heroLevel;
+        const hp = 300 + (level - 1) * 40;
+        const dmg = 40 + (level - 1) * 6;
+
+        const hero = this.game.entities.units.find(u => u.defName === 'hero' && u.owner === 'player' && u.curHp > 0);
+        if (hero) {
+            const hpGain = hp - hero.maxHp;
+            hero.maxHp = hp;
+            hero.curHp = Math.min(hp, hero.curHp + hpGain);
+            hero.dmg = dmg;
+        }
+
+        this._updateHeroStatsUI();
+    }
+
+    _updateHeroStatsUI() {
+        const level = this._heroLevel;
+        const hp = 300 + (level - 1) * 40;
+        const dmg = 40 + (level - 1) * 6;
+        const spd = 1.0;
+
+        if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hp;
+        if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = dmg;
+        if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = spd;
     }
 
     _addFloatingGold(amount) {
