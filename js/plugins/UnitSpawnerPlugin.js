@@ -13,6 +13,9 @@ export class UnitSpawnerPlugin {
         this._aiHeroAvailable = true;
         this._aiHeroRespawn = 0;
         this._boundHandlers = [];
+        this._spawnQueue = [];
+        this._spawnDelay = 120; // ms between spawns
+        this._spawnTimer = 0;
     }
 
     init(game) {
@@ -23,6 +26,8 @@ export class UnitSpawnerPlugin {
         this._aiHeroCooldown = 0;
         this._aiHeroAvailable = true;
         this._aiHeroRespawn = 0;
+        this._spawnQueue = [];
+        this._spawnTimer = 0;
 
         const onSpawn = (owner, defName, options = {}) => {
             this._spawn(owner, defName, options);
@@ -67,6 +72,8 @@ export class UnitSpawnerPlugin {
         this._aiHeroCooldown = 0;
         this._aiHeroAvailable = true;
         this._aiHeroRespawn = 0;
+        this._spawnQueue = [];
+        this._spawnTimer = 0;
     }
 
     _update(dt) {
@@ -102,6 +109,14 @@ export class UnitSpawnerPlugin {
         this.game._heroCooldown = this._heroCooldown;
         this.game._heroAvailable = this._heroAvailable;
         this.game._heroRespawn = this._heroRespawn;
+
+        // Process spawn queue with delay
+        this._spawnTimer -= dt;
+        if (this._spawnTimer <= 0 && this._spawnQueue.length > 0) {
+            const spawn = this._spawnQueue.shift();
+            this._processSpawn(spawn);
+            this._spawnTimer = this._spawnDelay;
+        }
     }
 
     _spawn(owner, defName, options = {}) {
@@ -110,7 +125,7 @@ export class UnitSpawnerPlugin {
             return;
         }
         if (defName === 'skeleton') {
-            this._spawnSkeleton(owner, options.x || 0);
+            this._spawnQueue.push({ owner, defName, options, isSkeleton: true });
             return;
         }
 
@@ -119,12 +134,23 @@ export class UnitSpawnerPlugin {
 
         if (!options.free && this.game.entities.countAlive(owner) >= (this.game.config.maxUnitsPerSide || 80)) return;
 
+        // Queue spawn request for delayed processing
+        this._spawnQueue.push({ owner, defName, options, UnitClass });
+    }
+
+    _processSpawn({ owner, defName, options, UnitClass, isSkeleton }) {
+        if (isSkeleton) {
+            this._spawnSkeleton(owner, options.x || 0);
+            return;
+        }
+
+        // Use fixed spawn position without overlap resolution
         const prefX = owner === 'player'
             ? (options.x || this.game.config.playerCastleX + this.game.config.spawnXOffset)
             : (options.x || this.game.config.aiCastleX - this.game.config.spawnXOffset);
 
         const unit = UnitClass.create(this.game.entities.nextId, owner);
-        unit.x = this.game.entities.resolveUnitOverlap(unit, prefX);
+        unit.x = prefX; // Fixed position, no overlap resolution
 
         if (unit.special.unique) {
             if (this.game.entities.units.some(u => u.owner === owner && u.defName === defName)) return;
@@ -147,7 +173,7 @@ export class UnitSpawnerPlugin {
             : (this.game.config.aiCastleX - this.game.config.spawnXOffset);
 
         const unit = UnitClass.create(this.game.entities.nextId, owner, {}, level);
-        unit.x = this.game.entities.resolveUnitOverlap(unit, prefX);
+        unit.x = prefX; // Fixed position, no overlap resolution
 
         if (this.game.entities.units.some(u => u.owner === owner && u.defName === 'hero')) return;
 
