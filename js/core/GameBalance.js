@@ -22,6 +22,7 @@ export const GameBalance = {
         speedPerLevel: 0.1,
         respawnTime: 30000,
         deployCooldown: 60000,
+        goldRate: 12,
     },
     units: {
         maxPerSide: 80,
@@ -51,7 +52,5 @@ export const GameBalance = {
     ai: {
         thinkInterval: 600,
         minSpawnScore: 0.15,
-        goldRate: 17,
-        goldRateIncreaseInterval: 30,
     },
 };

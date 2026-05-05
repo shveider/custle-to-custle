@@ -178,8 +178,7 @@ function startGame() {
     const ai = new AIManager(game, {
         thinkInterval: GameBalance.ai.thinkInterval,
         minSpawnScore: GameBalance.ai.minSpawnScore,
-        goldRate: GameBalance.ai.goldRate,
-        goldRateIncreaseInterval: GameBalance.ai.goldRateIncreaseInterval,
+        goldRate: GameBalance.economy.aiGoldRate,
     });
 
     const uiRefs = {

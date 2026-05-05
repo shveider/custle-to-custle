@@ -10,8 +10,7 @@ export class AIManager {
             thinkInterval: config.thinkInterval || 600,
             minSpawnScore: config.minSpawnScore || 0.15,
             allUnitTypes: config.allUnitTypes || ['swordsman', 'archer', 'mage', 'supreme', 'hero', 'tank', 'assassin', 'necromancer', 'giant'],
-            goldRate: config.goldRate || 17,
-            goldRateIncreaseInterval: config.goldRateIncreaseInterval || 30,
+            goldRate: config.goldRate,
         };
 
         this._timeAccumulator = 0;
