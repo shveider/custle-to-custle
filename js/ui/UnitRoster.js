@@ -1,12 +1,7 @@
-const UNIT_ICONS = {
-    swordsman: '⚔️', archer: '🏹', mage: '🔮', supreme: '✨',
-    hero: '⭐', tank: '🛡️', assassin: '🗡️', necromancer: '💀',
-    giant: '🗿', skeleton: '☠️',
-};
-
 export class UnitRoster {
-    constructor(game) {
+    constructor(game, assetRegistry) {
         this.game = game;
+        this._assetRegistry = assetRegistry;
         this._playerEl = document.getElementById('roster-player');
         this._aiEl = document.getElementById('roster-ai');
     }
@@ -34,8 +29,9 @@ export class UnitRoster {
         let html = '<span class="roster-label">' + (owner === 'player' ? 'Your army' : 'Enemy') + '</span>';
         keys.sort((a, b) => counts[b] - counts[a]);
         for (const type of keys) {
-            const icon = UNIT_ICONS[type] || '❓';
-            html += '<div class="roster-unit"><span class="roster-unit-icon">' + icon + '</span><span class="roster-unit-count">' + counts[type] + '</span></div>';
+            const icon = this._assetRegistry.getIcon(type);
+            const displayName = this._assetRegistry.getDisplayName(type);
+            html += '<div class="roster-unit" title="' + displayName + '"><span class="roster-unit-icon">' + icon + '</span><span class="roster-unit-count">' + counts[type] + '</span></div>';
         }
         container.innerHTML = html;
     }

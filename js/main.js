@@ -1,5 +1,6 @@
 import { Game } from './core/Game.js';
 import { UnitRegistry } from './core/UnitRegistry.js';
+import { GameBalance } from './core/GameBalance.js';
 import { GameEngine } from './core/GameEngine.js';
 import { CombatSystem } from './systems/CombatSystem.js';
 import { CastleDefenseSystem } from './systems/CastleDefenseSystem.js';
@@ -9,6 +10,7 @@ import { HUD } from './ui/HUD.js';
 import { CardDeck } from './ui/CardDeck.js';
 import { UnitRoster } from './ui/UnitRoster.js';
 import { UnitRenderer } from './ui/UnitRenderer.js';
+import { UnitAssetRegistry } from './ui/UnitAssetRegistry.js';
 import { SFXPlugin } from './plugins/SFXPlugin.js';
 import { SavePlugin } from './plugins/SavePlugin.js';
 import { EventPlugin } from './plugins/EventPlugin.js';
@@ -24,25 +26,26 @@ import { Giant } from './units/Giant.js';
 import { Supreme } from './units/Supreme.js';
 import { Hero } from './units/Hero.js';
 import { Skeleton } from './units/Skeleton.js';
+import { Healer } from './units/Healer.js';
 
 const GAME_CONFIG = {
-    goldRate: 12,
-    aiGoldRate: 15,
-    castleHP: 1000,
-    aiCastleHP: 2000,
-    battlefieldWidth: 3000,
-    unitSize: 48,
-    fixedDt: 1000 / 60,
-    playerCastleX: 40,
-    aiCastleX: 2960,
-    aiCastleXOffset: 40,
-    spawnXOffset: 60,
-    maxUnitsPerSide: 80,
+    goldRate: GameBalance.economy.playerGoldRate,
+    aiGoldRate: GameBalance.economy.aiGoldRate,
+    castleHP: GameBalance.castle.playerHP,
+    aiCastleHP: GameBalance.castle.aiHP,
+    battlefieldWidth: GameBalance.battlefield.width,
+    unitSize: GameBalance.units.unitSize,
+    fixedDt: GameBalance.gameLoop.fixedDt,
+    playerCastleX: GameBalance.battlefield.playerCastleX,
+    aiCastleX: GameBalance.battlefield.width - GameBalance.battlefield.aiCastleXOffset,
+    aiCastleXOffset: GameBalance.battlefield.aiCastleXOffset,
+    spawnXOffset: GameBalance.units.spawnOffset,
+    maxUnitsPerSide: GameBalance.units.maxPerSide,
     castleDefense: {
-        defenseRange: 360,
-        defenseDamage: 35,
-        defenseAttackDelay: 1300,
-        defenseProjectileKind: 'bolt',
+        defenseRange: GameBalance.castle.defenseRange,
+        defenseDamage: GameBalance.castle.defenseDamage,
+        defenseAttackDelay: GameBalance.castle.defenseAttackDelay,
+        defenseProjectileKind: GameBalance.castle.defenseProjectileKind,
     },
 };
 
@@ -57,76 +60,77 @@ const UNIT_CLASSES = new Map([
     ['supreme', Supreme],
     ['hero', Hero],
     ['skeleton', Skeleton],
+    ['healer', Healer],
 ]);
 
 const EVENT_REGISTRY = [
     {
-        id: 'ai_rush_10s',
-        trigger: { type: 'time', value: 10 },
-        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'swordsman', count: 10 }], free: true },
+        id: 'first_ai_wave',
+        trigger: { type: 'time', value: 20 },
+        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'swordsman', count: 5 }], free: true },
         once: true,
         title: '⚠️ Shadow Rush!',
         message: 'Enemy swordsman incoming!',
     },
     {
-        id: 'player_gold_bonus_50s',
+        id: 'first_player_bonus',
         trigger: { type: 'time', value: 50 },
-        action: { type: 'gold_bonus', owner: 'player', amount: 800 },
+        action: { type: 'gold_bonus', owner: 'player', amount: 1000 },
         once: true,
         title: '💰 Supply Drop!',
         message: 'You receive 600 gold reinforcements!',
     },
     {
-        id: 'ai_rush_60s',
-        trigger: { type: 'time', value: 60 },
-        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'assassin', count: 8 }, { name: 'archer', count: 5 }], free: true },
+        id: 'second_ai_wave',
+        trigger: { type: 'time', value: 90 },
+        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'assassin', count: 6 }, { name: 'archer', count: 5 }], free: true },
         once: true,
         title: '⚠️ Shadow Rush!',
         message: 'Enemy assassins sprint toward your castle!',
     },
     {
-        id: 'player_gold_bonus_65s',
-        trigger: { type: 'time', value: 65 },
-        action: { type: 'gold_bonus', owner: 'player', amount: 600 },
+        id: 'second_player_bonus',
+        trigger: { type: 'time', value: 120 },
+        action: { type: 'gold_bonus', owner: 'player', amount: 1000 },
         once: true,
         title: '💰 Supply Drop!',
         message: 'You receive 600 gold reinforcements!',
     },
     {
-        id: 'ai_giant_wave_90s',
-        trigger: { type: 'time', value: 90 },
+        id: 'gigantic_wave',
+        trigger: { type: 'time', value: 130 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'giant', count: 3 }], free: true },
         once: true,
         title: '⚠️ Giant Wave!',
         message: 'The enemy summons a titan army!',
     },
     {
-        id: 'ai_giant_wave_2min',
-        trigger: { type: 'time', value: 120 },
+        id: 'big_giant_wave',
+        trigger: { type: 'time', value: 150 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'giant', count: 8 }], free: true },
         once: true,
         title: '⚠️ Giant Wave!',
         message: 'The enemy summons a titan army!',
     },
     {
-        id: 'ai_mage_wave_160s',
-        trigger: { type: 'time', value: 160 },
+        id: 'ai_mage_wave',
+        trigger: { type: 'time', value: 180 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'mage', count: 4 }, { name: 'necromancer', count: 20 }], free: true },
         once: true,
         title: '⚠️ Arcane Assault!',
         message: 'Dark mages join the enemy ranks!',
     },
     {
-        id: 'player_gold_bonus_3min',
-        trigger: { type: 'time', value: 170 },
+        id: 'third_player_gold_bonus',
+        trigger: { type: 'time', value: 200 },
         action: { type: 'gold_bonus', owner: 'player', amount: 800 },
         once: true,
         title: '💰 Supply Drop!',
         message: 'You receive 800 gold reinforcements!',
     },
     {
-        id: 'ai_siege_wave_4min',
-        trigger: { type: 'time', value: 240 },
+        id: 'ai_siege_wave',
+        trigger: { type: 'time', value: 260 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'supreme', count: 20 }, { name: 'giant', count: 10 }, { name: 'assassin', count: 40 }], free: true },
         once: true,
         title: '⚠️ Siege Wave!',
@@ -134,7 +138,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'last_drop',
-        trigger: { type: 'time', value: 300 },
+        trigger: { type: 'time', value: 320 },
         action: { type: 'gold_bonus', owner: 'player', amount: 800 },
         once: true,
         title: '⚠️ Siege Wave!',
@@ -162,6 +166,9 @@ function startGame() {
     const game = new Game(GAME_CONFIG);
     game.unitRegistry = new UnitRegistry();
 
+    const assetRegistry = new UnitAssetRegistry();
+    assetRegistry.setUnitRegistry(game.unitRegistry);
+
     const fx = new FXSystem(game);
     game.fx = fx;
     const combat = new CombatSystem(game, fx, {
@@ -170,7 +177,10 @@ function startGame() {
     });
     const defense = new CastleDefenseSystem(game, fx);
     const ai = new AIManager(game, {
-        allUnitTypes: ['swordsman', 'archer', 'mage', 'supreme', 'hero', 'tank', 'assassin', 'necromancer', 'giant'],
+        thinkInterval: GameBalance.ai.thinkInterval,
+        minSpawnScore: GameBalance.ai.minSpawnScore,
+        goldRate: GameBalance.ai.goldRate,
+        goldRateIncreaseInterval: GameBalance.ai.goldRateIncreaseInterval,
     });
 
     const uiRefs = {
@@ -197,9 +207,9 @@ function startGame() {
 
     const hud = new HUD(game, uiRefs);
     game._hud = hud;
-    const renderer = new UnitRenderer(game, document.getElementById('battle'));
-    const roster = new UnitRoster(game);
-    const cards = new CardDeck(game, hud, () => hud._heroLevel);
+    const renderer = new UnitRenderer(game, document.getElementById('battle'), assetRegistry);
+    const roster = new UnitRoster(game, assetRegistry);
+    const cards = new CardDeck(game, hud, () => hud._heroLevel, assetRegistry);
 
     game.config = {
         ...game.config,

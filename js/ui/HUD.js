@@ -1,5 +1,7 @@
 const HP_COLORS = ['#ef4444', '#f59e0b', '#f59e0b', '#22c55e'];
 import { GameEvents } from '../core/Events.js';
+import { Hero } from '../units/Hero.js';
+import { GameBalance } from '../core/GameBalance.js';
 
 function hpColor(pct) {
     return pct > 0.5 ? HP_COLORS[3] : pct > 0.25 ? HP_COLORS[2] : pct > 0.1 ? HP_COLORS[1] : HP_COLORS[0];
@@ -91,9 +93,11 @@ export class HUD {
     }
 
     _upgradeHeroStats() {
+        const hb = GameBalance.hero;
         const level = this._heroLevel;
-        const hp = 300 + (level - 1) * 40;
-        const dmg = 40 + (level - 1) * 6;
+        const hp = Hero.STATS.hp + (level - 1) * hb.hpPerLevel;
+        const dmg = Hero.STATS.dmg + (level - 1) * hb.dmgPerLevel;
+        const speed = Hero.STATS.speed + (level - 1) * hb.speedPerLevel;
 
         const hero = this.game.entities.units.find(u => u.defName === 'hero' && u.owner === 'player' && u.curHp > 0);
         if (hero) {
@@ -101,20 +105,27 @@ export class HUD {
             hero.maxHp = hp;
             hero.curHp = Math.min(hp, hero.curHp + hpGain);
             hero.dmg = dmg;
+            hero.speed = speed;
         }
 
         this._updateHeroStatsUI();
     }
 
     _updateHeroStatsUI() {
-        const level = this._heroLevel;
-        const hp = 300 + (level - 1) * 40;
-        const dmg = 40 + (level - 1) * 6;
-        const spd = 1.0;
-
-        if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hp;
-        if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = dmg;
-        if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = spd;
+        const hero = this.game.entities.units.find(u => u.defName === 'hero' && u.owner === 'player' && u.curHp > 0);
+        if (hero) {
+            if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hero.maxHp;
+            if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = hero.dmg;
+            if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = hero.speed.toFixed(1);
+        } else {
+            const level = this._heroLevel;
+            const hp = Hero.STATS.hp + (level - 1) * 50;
+            const dmg = Hero.STATS.dmg + (level - 1) * 8;
+            const speed = Hero.STATS.speed + (level - 1) * 0.1;
+            if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hp.toString();
+            if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = dmg.toString();
+            if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = speed.toFixed(1);
+        }
     }
 
     _addFloatingGold(amount) {
@@ -136,7 +147,7 @@ export class HUD {
             fg.time += dt;
             const progress = fg.time / 1000;
             fg.el.style.transform = `translateY(${-30 * progress}px)`;
-            fg.el.style.opacity = 1 - progress;
+            fg.el.style.opacity = (1 - progress).toString();
             if (progress >= 1) {
                 fg.el.remove();
                 this._floatingGold.splice(i, 1);
@@ -173,7 +184,7 @@ export class HUD {
             const pct = clamp(this._aiCastleHp / this._aiCastleMaxHp, 0, 1);
             refs.aiHpBar.style.width = (pct * 100) + '%';
             refs.aiHpBar.style.background = hpColor(pct);
-            if (refs.aiHpText) refs.aiHpText.textContent = Math.max(0, Math.round(this._aiCastleHp));
+            if (refs.aiHpText) refs.aiHpText.textContent = Math.max(0, Math.round(this._aiCastleHp)).toString();
         }
 
         if (refs.castlePlayer) {

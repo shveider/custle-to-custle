@@ -1,0 +1,58 @@
+export const GameBalance = {
+    economy: {
+        playerGoldRate: 12,
+        aiGoldRate: 15,
+    },
+    castle: {
+        playerHP: 1000,
+        aiHP: 2000,
+        defenseRange: 360,
+        defenseDamage: 35,
+        defenseAttackDelay: 1300,
+        defenseProjectileKind: 'bolt',
+    },
+    hero: {
+        baseHP: 300,
+        hpPerLevel: 50,
+        baseDmg: 40,
+        dmgPerLevel: 8,
+        baseResourceMax: 125,
+        resourceMaxPerLevel: 1,
+        baseSpeed: 1.0,
+        speedPerLevel: 0.1,
+        respawnTime: 30000,
+        deployCooldown: 60000,
+    },
+    units: {
+        maxPerSide: 80,
+        spawnOffset: 60,
+        unitSize: 48,
+    },
+    battlefield: {
+        width: 3000,
+        playerCastleX: 40,
+        aiCastleXOffset: 40,
+    },
+    fx: {
+        projectileSpeed: {
+            arrow: 420,
+            bolt: 360,
+            fire: 300,
+        },
+        impactLife: {
+            hit: 220,
+            spark: 180,
+            magic: 260,
+            shield: 300,
+        },
+    },
+    gameLoop: {
+        fixedDt: 1000 / 60,
+    },
+    ai: {
+        thinkInterval: 600,
+        minSpawnScore: 0.15,
+        goldRate: 17,
+        goldRateIncreaseInterval: 30,
+    },
+};

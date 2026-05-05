@@ -39,7 +39,7 @@ export function calcWaveCost(comp, unitRegistry) {
     let total = 0;
     for (const u of comp.units) {
         const cls = unitRegistry.get(u.type);
-        total += (cls ? cls.STATS.cost : 50) * u.count;
+        total += (cls ? cls.cost : 50) * u.count;
     }
     return total;
 }

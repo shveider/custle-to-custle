@@ -1,6 +1,7 @@
 import { Castle } from '../entities/Castle.js';
 import { Skeleton } from '../units/Skeleton.js';
 import { GameEvents, EntityEvents } from '../core/Events.js';
+import { GameBalance } from '../core/GameBalance.js';
 
 export class UnitSpawnerPlugin {
     constructor(name = 'unitSpawner') {
@@ -152,7 +153,7 @@ export class UnitSpawnerPlugin {
 
         this.game.entities.add(unit);
 
-        const cd = UnitClass.STATS.cooldown || 60000;
+        const cd = GameBalance.hero.deployCooldown || 60000;
         if (owner === 'player') {
             this._heroCooldown = cd;
             this._heroAvailable = false;

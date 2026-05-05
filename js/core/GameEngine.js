@@ -4,7 +4,6 @@ import { GameEvents, EntityEvents } from './Events.js';
 export class GameEngine {
     constructor(game, engineConfig) {
         this.game = game;
-        this._battleEl = engineConfig.battleEl;
         this._logEl = engineConfig.logEl;
         this._unitClasses = engineConfig.unitClasses;
     }
@@ -43,6 +42,10 @@ export class GameEngine {
             attacker.triggerAnim('attacking', 250, this.game.time * 1000);
         });
 
+        game.events.on(GameEvents.UNIT_HEAL, (healer) => {
+            healer.triggerAnim('attacking', 250, this.game.time * 1000);
+        });
+
         game.events.on(GameEvents.COMBAT_HIT, (attacker, target) => {
             target.triggerAnim('hit', 150, this.game.time * 1000);
         });
@@ -63,6 +66,10 @@ export class GameEngine {
 
         game.events.on(GameEvents.COMBAT_CRIT, (attacker, target, dmg) => {
             this._log(attacker.defName + ' critical strike for ' + Math.round(dmg) + '!');
+        });
+
+        game.events.on(GameEvents.COMBAT_HEAL, (healer, targets, amount) => {
+            this._log(healer.owner + ' healer restored ' + amount + ' HP to ' + targets.length + ' ally(s)');
         });
 
         game.events.on(GameEvents.END, (winner) => this._showGameOver(winner));
@@ -118,6 +125,40 @@ export class GameEngine {
             if (u.curHp <= 0) continue;
 
             u.regenResource(effSec);
+
+            // Healers emit heal events when allies are in range and need healing
+            if (u.isHealer) {
+                const alliesNeedHeal = game.entities.units.filter(a =>
+                    a.owner === u.owner &&
+                    a.id !== u.id &&
+                    a.curHp > 0 &&
+                    a.curHp < a.maxHp &&
+                    Math.abs(a.x - u.x) < u.range
+                );
+                if (alliesNeedHeal.length > 0 && u.canHeal(gameTimeMs) && u.hasHealResource()) {
+                    game.events.emit(GameEvents.UNIT_HEAL, u);
+                    u.markAttacked(gameTimeMs);
+                } else if (alliesNeedHeal.length === 0) {
+                    // Move toward the front-most ally (furthest ahead) to stay near front line
+                    const alliesAhead = game.entities.units.filter(a =>
+                        a.owner === u.owner &&
+                        a.id !== u.id &&
+                        a.curHp > 0 &&
+                        (u.owner === 'player' ? a.x > u.x : a.x < u.x)
+                    );
+                    if (alliesAhead.length > 0) {
+                        const furthestAlly = alliesAhead.reduce((furthest, a) => {
+                            return (u.owner === 'player' ? a.x > furthest.x : a.x < furthest.x) ? a : furthest;
+                        });
+                        const distToFront = Math.abs(furthestAlly.x - u.x);
+                        // Move if front line is beyond healing range
+                        if (distToFront > u.range) {
+                            u.move(effSec, battleLeft, battleRight);
+                        }
+                    }
+                }
+                continue;
+            }
 
             const nearest = game.entities.nearestEnemyTo(u, u.range);
             if (nearest && u.canAttack(gameTimeMs)) {

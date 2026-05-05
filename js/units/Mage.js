@@ -1,4 +1,5 @@
 import { Unit } from '../entities/Unit.js';
+import { UnitType } from '../core/UnitTypes.js'
 
 export class Mage extends Unit {
     static STATS = {
@@ -7,11 +8,18 @@ export class Mage extends Unit {
         dmg: 40,
         speed: 2,
         range: 170,
-        type: 'ranged',
+        type: UnitType.RANGED,
         special: { chain: 0.5, chainRange: 120 },
         resourceType: 'mana',
         resourceMax: 110,
         resourceRegenPerSec: 13,
         resourceCostPerAttack: 20,
+        displayName: 'Mage',
+        description: 'Powerful spellcaster',
+        abilityDesc: 'Chain Lightning (50% damage to nearby enemies)',
+        icon: '🔮',
+        projectileKind: 'bolt',
+        impactKind: 'magic',
+        abilityIcon: '⚡',
     };
 }

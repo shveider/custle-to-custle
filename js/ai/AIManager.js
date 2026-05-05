@@ -3,18 +3,6 @@ import { GameEvents } from '../core/Events.js';
 
 const Phase = { IDLE: 'idle', PLANNING: 'planning', ATTACKING: 'attacking', DEFENDING: 'defending' };
 
-const COUNTER_MAP = {
-    swordsman: 'archer', archer: 'assassin', mage: 'assassin', supreme: 'assassin',
-    tank: 'mage', assassin: 'swordsman', necromancer: 'assassin', giant: 'archer', hero: 'tank',
-};
-
-const UNIT_ROLES = {
-    swordsman: { role: 'melee', tier: 1 }, archer: { role: 'ranged', tier: 1 },
-    mage: { role: 'ranged', tier: 2 }, supreme: { role: 'siege', tier: 3 },
-    hero: { role: 'hero', tier: 3 }, tank: { role: 'melee', tier: 2 },
-    assassin: { role: 'melee', tier: 2 }, necromancer: { role: 'ranged', tier: 3 }, giant: { role: 'melee', tier: 3 },
-};
-
 export class AIManager {
     constructor(game, config = {}) {
         this.game = game;
@@ -36,7 +24,54 @@ export class AIManager {
         this._lastWaveSpawnTime = 0;
         this._compositions = getWaveCompositions();
 
+        this._counterMap = this._buildCounterMap();
+        this._unitRoles = this._buildUnitRoles();
+
         this._setupListeners();
+    }
+
+    _buildCounterMap() {
+        const counterMap = {};
+        const unitRegistry = this.game.unitRegistry;
+        if (!unitRegistry) return counterMap;
+
+        for (const key of unitRegistry.keys()) {
+            const UnitClass = unitRegistry.get(key);
+            if (UnitClass.STATS?.type === 'ranged') {
+                counterMap[key] = 'assassin';
+            } else if (key === 'hero') {
+                counterMap[key] = 'tank';
+            } else if (key === 'tank') {
+                counterMap[key] = 'mage';
+            } else if (key === 'giant') {
+                counterMap[key] = 'archer';
+            } else {
+                counterMap[key] = 'archer';
+            }
+        }
+        return counterMap;
+    }
+
+    _buildUnitRoles() {
+        const unitRoles = {};
+        const unitRegistry = this.game.unitRegistry;
+        if (!unitRegistry) return unitRoles;
+
+        for (const key of unitRegistry.keys()) {
+            const UnitClass = unitRegistry.get(key);
+            const stats = UnitClass.STATS;
+            if (!stats) continue;
+
+            let tier = 1;
+            if (stats.cost >= 300) tier = 3;
+            else if (stats.cost >= 150) tier = 2;
+
+            unitRoles[key] = {
+                role: stats.type,
+                tier: tier,
+            };
+        }
+        return unitRoles;
     }
 
     _setupListeners() {
@@ -142,11 +177,11 @@ export class AIManager {
         let score = (dps * 0.5 + effectiveHP * 0.3) / Math.max(s.cost, 1);
         score += (s.range / 100) * 0.15;
 
-        if (this._dominantPlayerUnit && COUNTER_MAP[this._dominantPlayerUnit] === unitName) score += 2.0;
-        const counterTarget = COUNTER_MAP[unitName];
+        if (this._dominantPlayerUnit && this._counterMap[this._dominantPlayerUnit] === unitName) score += 2.0;
+        const counterTarget = this._counterMap[unitName];
         if (counterTarget && this.game.entities.countByType('player', counterTarget) > 0) score += 0.8;
 
-        const myRole = UNIT_ROLES[unitName]?.role;
+        const myRole = this._unitRoles[unitName]?.role;
         if (myRole === 'melee' && !ctx.aiHasFrontline) score += 1.5;
 
         if (ctx.enemyNearCastle) {

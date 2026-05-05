@@ -1,4 +1,5 @@
 import { Unit } from '../entities/Unit.js';
+import { UnitType } from '../core/UnitTypes.js'
 
 export class Skeleton extends Unit {
     static STATS = {
@@ -7,13 +8,16 @@ export class Skeleton extends Unit {
         dmg: 8,
         speed: 0.6,
         range: 40,
-        type: 'melee',
+        type: UnitType.MELEE,
         special: {},
         resourceType: 'stamina',
         resourceMax: 50,
         resourceRegenPerSec: 10,
         resourceCostPerAttack: 10,
         attackDelay: 600,
+        displayName: 'Skeleton',
+        description: 'Undead minion',
+        icon: '☠️',
     };
 
     static create(id, owner, overrides = {}) {

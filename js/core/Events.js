@@ -52,6 +52,10 @@ export const GameEvents = {
    *  Listened to by: CombatSystem (resolves the attack) */
   UNIT_ATTACK: 'unit:attack',
 
+  /** A healer initiated a heal — carries { healer }.
+   *  Listened to by: CombatSystem (resolves the heal) */
+  UNIT_HEAL: 'unit:heal',
+
   /** A unit attacked a castle directly — carries { unit, castle, damage }.
    *  Listened to by: CombatSystem (resolves castle damage) */
   UNIT_ATTACK_CASTLE: 'unit:attackCastle',
@@ -97,6 +101,10 @@ export const GameEvents = {
   /** An attack scored a critical hit — carries { attacker, target, damage }.
    *  Listened to by: GameEngine (logs crit), SFXPlugin (crit sound) */
   COMBAT_CRIT: 'combat:crit',
+
+  /** A heal was applied to allies — carries { healer, targets, amount }.
+   *  Listened to by: GameEngine (logs heal), FXSystem (heal effects) */
+  COMBAT_HEAL: 'combat:heal',
 
   /** A castle took damage — carries { castle, damage }.
    *  Listened to by: HUD (updates HP bar) */

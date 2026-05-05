@@ -3,8 +3,8 @@ import { Effect } from '../entities/Effect.js';
 import { GameEvents } from '../core/Events.js';
 
 const PROJECTILE_SPEED = { arrow: 420, bolt: 360, fire: 300, lightning: 500 };
-const IMPACT_LIFE = { hit: 220, spark: 180, magic: 260, lightning: 200, shield: 240, summon: 300 };
-const IMPACT_SIZE = { hit: 10, spark: 8, magic: 12, lightning: 14, shield: 16, summon: 18 };
+const IMPACT_LIFE = { hit: 220, spark: 180, magic: 260, lightning: 200, shield: 240, summon: 300, heal: 280 };
+const IMPACT_SIZE = { hit: 10, spark: 8, magic: 12, lightning: 14, shield: 16, summon: 18, heal: 12 };
 const IMPACT_COLOR = {
     hit: 'radial-gradient(circle, rgba(255,255,255,.9), rgba(255,200,80,.6))',
     spark: 'radial-gradient(circle, rgba(255,255,180,.9), rgba(255,120,0,.6))',
@@ -12,6 +12,7 @@ const IMPACT_COLOR = {
     lightning: 'radial-gradient(circle, rgba(255,255,255,.95), rgba(0,200,255,.7))',
     shield: 'radial-gradient(circle, rgba(100,180,255,.8), rgba(60,120,220,.4))',
     summon: 'radial-gradient(circle, rgba(80,255,80,.7), rgba(40,180,40,.3))',
+    heal: 'radial-gradient(circle, rgba(180,255,180,.9), rgba(80,220,120,.5))',
 };
 
 /**
@@ -32,7 +33,15 @@ const IMPACT_COLOR = {
 export class FXSystem {
     constructor(game) {
         this.game = game;
+
+        /**
+         * @type {Projectile[]}
+         */
         this.projectiles = [];
+
+        /**
+         * @type {Effect[]}
+         */
         this.effects = [];
         this._nextProjId = 1;
         this._setupListeners();
@@ -75,7 +84,7 @@ export class FXSystem {
     /**
      * Spawns a radial impact effect at the given position.
      * @param {number} x - World X coordinate.
-     * @param {string} [kind='hit'] - Impact type ('hit' | 'spark' | 'magic' | 'lightning' | 'shield' | 'summon').
+     * @param {string} [kind='hit'] - Impact type ('hit' | 'spark' | 'magic' | 'lightning' | 'shield' | 'summon' | 'heal').
      * @param {boolean} [crit=false] - Whether this is a critical hit (triggers extra burst animation).
      */
     spawnImpact(x, kind = 'hit', crit = false) {
