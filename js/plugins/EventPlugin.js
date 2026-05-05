@@ -62,6 +62,7 @@ export class EventPlugin {
                 [queue[i], queue[j]] = [queue[j], queue[i]];
             }
             this.pendingSpawns = queue;
+            this.spawnDelay = action.spawnDelay ?? 500;
             this.nextSpawnTime = this.game.time * 1000;
         } else if (action.type === 'gold_bonus') {
             this.game._hud[action.owner === 'player' ? 'gold' : 'aiGold'] += action.amount;
@@ -81,7 +82,7 @@ export class EventPlugin {
         this.game.spawnUnit(next.owner, next.name);
 
         if (this.pendingSpawns.length > 0) {
-            this.nextSpawnTime = now + 500;
+            this.nextSpawnTime = now + (this.spawnDelay ?? 500);
         }
     }
 
