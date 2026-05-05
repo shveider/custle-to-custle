@@ -7,17 +7,17 @@ export class Healer extends Unit {
         hp: 100,
         dmg: 0, // No enemy damage
         speed: 0.8,
-        range: 150, // Healing radius
+        range: 150,
         type: UnitType.RANGED,
         special: {
             healSplash: true,
-            healAmount: 25,
-            healInterval: 1000,
-            resourceCostPerHeal: 20
+            healAmount: 35,
+            healInterval: 600,
+            resourceCostPerHeal: 14
         },
         resourceType: 'mana',
         resourceMax: 160,
-        resourceRegenPerSec: 15,
+        resourceRegenPerSec: 8,
         displayName: 'Healer',
         description: 'Splash heals multiple ally units in range',
         abilityDesc: 'Splash Heal (12 HP to allies in 100 range)',

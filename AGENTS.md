@@ -83,5 +83,11 @@ static STATS = {
 2. Implement `hasAttackSpecial()`, `tryActivate()`, `execute()`, etc.
 3. Add ability to unit's `special` object in STATS
 
+### Unit Range Guidelines
+- **Reference config:** `GameBalance.units.unitSize` (currently 48px) — see `js/core/GameBalance.js:29`
+- **Minimum melee range:** 44-48px ensures units can attack when touching/overlapping
+- **Range calculation:** Distance is measured center-to-center; with `range: 48`, units at 48px apart can attack
+- **Recommendation:** Use 44-48 for melee, 120+ for ranged, 300+ for siege
+
 # MONITORING
 If something changed in the code and architecture - adjust AGENTS.md.

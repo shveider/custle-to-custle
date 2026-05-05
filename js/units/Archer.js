@@ -7,7 +7,7 @@ export class Archer extends Unit {
         hp: 65,
         dmg: 20,
         speed: 1.0,
-        range: 180,
+        range: 160,
         type: UnitType.RANGED,
         special: { piercing: 0.5 },
         resourceType: 'stamina',

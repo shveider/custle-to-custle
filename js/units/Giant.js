@@ -7,7 +7,7 @@ export class Giant extends Unit {
         hp: 800,
         dmg: 60,
         speed: 0.4,
-        range: 120,
+        range: 60,
         type: UnitType.MELEE,
         special: { area: 0.5, areaRadius: 60, areaMultiplier: 0.6 },
         resourceType: 'stamina',

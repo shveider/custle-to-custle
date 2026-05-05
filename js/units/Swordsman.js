@@ -7,7 +7,7 @@ export class Swordsman extends Unit {
         hp: 150,
         dmg: 10,
         speed: 0.8,
-        range: 50,
+        range: 46,
         type: UnitType.MELEE,
         special: { shieldBlock: 0.2 },
         resourceType: 'stamina',

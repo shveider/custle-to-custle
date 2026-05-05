@@ -7,7 +7,7 @@ export class Supreme extends Unit {
         hp: 50,
         dmg: 80,
         speed: 0.35,
-        range: 320,
+        range: 300,
         type: UnitType.SIEGE,
         special: { siege: true, castleBonus: 3.0, line: true, lineRange: 320, attackDelay: 2400 },
         resourceType: 'mana',

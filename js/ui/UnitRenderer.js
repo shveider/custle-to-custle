@@ -79,7 +79,7 @@ export class UnitRenderer {
 
             const flip = u.owner === 'ai' ? aiFlip : noFlip;
             el.style.left = (u.x - halfUnit) + 'px';
-            el._badge.textContent = Math.max(0, Math.round(u.curHp));
+            el._badge.textContent = Math.max(0, Math.round(u.curHp)).toString();
             el._badge.style.transform = flip;
             const hpPct = clamp(u.curHp / u.maxHp, 0, 1);
             el._hpFill.style.width = (hpPct * 100) + '%';

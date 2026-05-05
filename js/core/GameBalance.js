@@ -13,7 +13,7 @@ export const GameBalance = {
     },
     hero: {
         baseHP: 300,
-        hpPerLevel: 50,
+        hpPerLevel: 100,
         baseDmg: 40,
         dmgPerLevel: 8,
         baseResourceMax: 125,
@@ -25,7 +25,6 @@ export const GameBalance = {
     },
     units: {
         maxPerSide: 80,
-        spawnOffset: 60,
         unitSize: 48,
     },
     battlefield: {

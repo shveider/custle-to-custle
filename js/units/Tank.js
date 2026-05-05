@@ -7,7 +7,7 @@ export class Tank extends Unit {
         hp: 1000,
         dmg: 5,
         speed: 0.5,
-        range: 90,
+        range: 48,
         type: UnitType.MELEE,
         special: { shieldBlock: 0.8 },
         resourceType: 'stamina',

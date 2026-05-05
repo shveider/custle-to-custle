@@ -8,7 +8,7 @@ export class Hero extends Unit {
         hp: 300,
         dmg: 40,
         speed: 1.0,
-        range: 90,
+        range: 60,
         type: UnitType.HERO,
         special: { unique: true },
         resourceType: 'stamina',

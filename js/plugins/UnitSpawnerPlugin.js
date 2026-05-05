@@ -146,8 +146,8 @@ export class UnitSpawnerPlugin {
 
         // Use fixed spawn position without overlap resolution
         const prefX = owner === 'player'
-            ? (options.x || this.game.config.playerCastleX + this.game.config.spawnXOffset)
-            : (options.x || this.game.config.aiCastleX - this.game.config.spawnXOffset);
+            ? (options.x || this.game.config.playerCastleX)
+            : (options.x || this.game.config.aiCastleX);
 
         const unit = UnitClass.create(this.game.entities.nextId, owner);
         unit.x = prefX; // Fixed position, no overlap resolution
@@ -169,8 +169,8 @@ export class UnitSpawnerPlugin {
 
         const level = owner === 'player' ? this.game._hud._heroLevel : 1;
         const prefX = owner === 'player'
-            ? (this.game.config.playerCastleX + this.game.config.spawnXOffset)
-            : (this.game.config.aiCastleX - this.game.config.spawnXOffset);
+            ? (this.game.config.playerCastleX)
+            : (this.game.config.aiCastleX);
 
         const unit = UnitClass.create(this.game.entities.nextId, owner, {}, level);
         unit.x = prefX; // Fixed position, no overlap resolution

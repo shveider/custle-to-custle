@@ -39,7 +39,6 @@ const GAME_CONFIG = {
     playerCastleX: GameBalance.battlefield.playerCastleX,
     aiCastleX: GameBalance.battlefield.width - GameBalance.battlefield.aiCastleXOffset,
     aiCastleXOffset: GameBalance.battlefield.aiCastleXOffset,
-    spawnXOffset: GameBalance.units.spawnOffset,
     maxUnitsPerSide: GameBalance.units.maxPerSide,
     castleDefense: {
         defenseRange: GameBalance.castle.defenseRange,
@@ -131,7 +130,7 @@ const EVENT_REGISTRY = [
     {
         id: 'ai_siege_wave',
         trigger: { type: 'time', value: 260 },
-        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'supreme', count: 20 }, { name: 'giant', count: 10 }, { name: 'assassin', count: 40 }], free: true },
+        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'supreme', count: 15 }, { name: 'giant', count: 10 }, { name: 'assassin', count: 30 }], free: true },
         once: true,
         title: '⚠️ Siege Wave!',
         message: 'A massive combined assault approaches!',

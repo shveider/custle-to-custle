@@ -7,7 +7,7 @@ export class Skeleton extends Unit {
         hp: 30,
         dmg: 8,
         speed: 0.6,
-        range: 40,
+        range: 46,
         type: UnitType.MELEE,
         special: {},
         resourceType: 'stamina',

@@ -169,9 +169,9 @@ export class HUD {
         this.syncCastles();
 
         const refs = this.refs;
-        if (refs.goldEl) refs.goldEl.textContent = Math.floor(this._gold);
-        if (refs.timeEl) refs.timeEl.textContent = Math.floor(this._time);
-        if (refs.aiGoldInfo) refs.aiGoldInfo.textContent = Math.floor(this._aiGold);
+        if (refs.goldEl) refs.goldEl.textContent = Math.floor(this._gold).toString();
+        if (refs.timeEl) refs.timeEl.textContent = Math.floor(this._time).toString();
+        if (refs.aiGoldInfo) refs.aiGoldInfo.textContent = Math.floor(this._aiGold).toString();
 
         if (refs.playerHpBar && this._playerCastleMaxHp > 0) {
             const pct = clamp(this._playerCastleHp / this._playerCastleMaxHp, 0, 1);
