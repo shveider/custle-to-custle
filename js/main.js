@@ -9,7 +9,7 @@ import { AIManager } from './ai/AIManager.js';
 import { HUD } from './ui/HUD.js';
 import { CardDeck } from './ui/CardDeck.js';
 import { UnitRoster } from './ui/UnitRoster.js';
-import { UnitRenderer } from './ui/UnitRenderer.js';
+import { CanvasRenderer } from './ui/CanvasRenderer.js';
 import { UnitAssetRegistry } from './ui/UnitAssetRegistry.js';
 import { SFXPlugin } from './plugins/SFXPlugin.js';
 import { SavePlugin } from './plugins/SavePlugin.js';
@@ -205,7 +205,7 @@ function startGame() {
 
     const hud = new HUD(game, uiRefs);
     game._hud = hud;
-    const renderer = new UnitRenderer(game, document.getElementById('battle'), assetRegistry);
+    const renderer = new CanvasRenderer(game, document.getElementById('game-canvas'), assetRegistry);
     const roster = new UnitRoster(game, assetRegistry);
     const cards = new CardDeck(game, hud, () => hud._heroLevel, assetRegistry);
 
@@ -229,7 +229,6 @@ function startGame() {
     game.plugins.register(new UnitSpawnerPlugin());
 
     const engine = new GameEngine(game, {
-        battleEl: document.getElementById('battle'),
         logEl: document.getElementById('log'),
         unitClasses: UNIT_CLASSES,
     });

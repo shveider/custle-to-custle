@@ -30,8 +30,8 @@ export const GameBalance = {
     },
     battlefield: {
         width: 3000,
-        playerCastleX: 40,
-        aiCastleXOffset: 40,
+        playerCastleX: 90,
+        aiCastleXOffset: 90,
     },
     fx: {
         projectileSpeed: {
