@@ -4,12 +4,12 @@ import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 export class Tank extends Unit {
     static STATS = {
         cost: 200,
-        hp: 1000,
+        hp: 650,
         dmg: 5,
         speed: 0.5,
         range: 48,
         type: UnitType.MELEE,
-        special: { [SpecialAbility.SHIELD_BLOCK]: 0.8 },
+        special: { [SpecialAbility.SHIELD_BLOCK]: 0.6 },
         resourceType: ResourceType.STAMINA,
         resourceMax: 150,
         resourceRegenPerSec: 30,

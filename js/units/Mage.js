@@ -4,7 +4,7 @@ import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 export class Mage extends Unit {
     static STATS = {
         cost: 120,
-        hp: 50,
+        hp: 70,
         dmg: 40,
         speed: 2,
         range: 170,

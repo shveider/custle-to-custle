@@ -1,7 +1,7 @@
 export const GameBalance = {
     economy: {
         playerGoldRate: 12,
-        aiGoldRate: 15,
+        aiGoldRate: 13,
     },
     castle: {
         playerHP: 1000,

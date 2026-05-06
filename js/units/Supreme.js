@@ -9,7 +9,7 @@ export class Supreme extends Unit {
         speed: 0.35,
         range: 300,
         type: UnitType.SIEGE,
-        special: { [SpecialAbility.SIEGE]: true, castleBonus: 3.0, [SpecialAbility.LINE]: true, lineRange: 320, attackDelay: 2400 },
+        special: { [SpecialAbility.SIEGE]: true, castleBonus: 3.0, [SpecialAbility.LINE]: true, lineRange: 320, attackDelay: 1800 },
         resourceType: ResourceType.MANA,
         resourceMax: 120,
         resourceRegenPerSec: 8,
