@@ -1,5 +1,3 @@
-import { Castle } from '../entities/Castle.js';
-import { Skeleton } from '../units/Skeleton.js';
 import { GameEvents, EntityEvents } from '../core/Events.js';
 import { GameBalance } from '../core/GameBalance.js';
 

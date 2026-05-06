@@ -1,5 +1,5 @@
 import { GameEvents } from '../core/Events.js';
-import { ResourceType } from '../core/UnitTypes'
+import { ResourceType } from '../core/UnitTypes.js'
 
 /** @constant {number} Total height of the game field canvas in pixels */
 const FIELD_H = 460;
