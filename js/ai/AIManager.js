@@ -6,11 +6,15 @@ const Phase = { IDLE: 'idle', PLANNING: 'planning', ATTACKING: 'attacking', DEFE
 
 export class AIManager {
     constructor(game, config = {}) {
+        if (!config.thinkInterval || !config.minSpawnScore) {
+            throw new Error('AIManager requires thinkInterval and minSpawnScore config');
+        }
+
         this.game = game;
         this.config = {
-            thinkInterval: config.thinkInterval || 600,
-            minSpawnScore: config.minSpawnScore || 0.15,
-            allUnitTypes: config.allUnitTypes || ['swordsman', 'archer', 'mage', 'supreme', 'hero', 'tank', 'assassin', 'necromancer', 'giant'],
+            thinkInterval: config.thinkInterval,
+            minSpawnScore: config.minSpawnScore,
+            allUnitTypes: ['swordsman', 'archer', 'mage', 'supreme', 'hero', 'tank', 'assassin', 'necromancer', 'giant'],
             goldRate: config.goldRate,
         };
 
@@ -168,7 +172,10 @@ export class AIManager {
 
     _scoreUnit(unitName, ctx) {
         const UnitClass = this.game.unitRegistry.get(unitName);
-        if (!UnitClass) return -10;
+        if (!UnitClass) {
+            return -10
+        }
+
         const s = UnitClass.STATS;
         const attacksPerSec = 1000 / (s.attackDelay || 800);
         const dps = s.dmg * attacksPerSec;

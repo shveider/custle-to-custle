@@ -197,6 +197,8 @@ function startGame() {
         heroSpdStat: document.getElementById('hero-spd-stat'),
         castlePlayer: document.getElementById('castle-player'),
         castleAi: document.getElementById('castle-ai'),
+        castleLevelEl: document.getElementById('castle-level'),
+        castleUpgradeBtn: document.getElementById('castle-upgrade-btn'),
         btnPause: document.getElementById('btn-pause'),
         btnSpeed: document.getElementById('btn-speed'),
         btnReset: document.getElementById('btn-reset'),

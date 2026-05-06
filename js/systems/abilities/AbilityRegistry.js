@@ -160,11 +160,3 @@ export const AbilityRegistry = {
         },
     },
 };
-
-export function getAbilityNames() {
-    return Object.keys(AbilityRegistry);
-}
-
-export function getAbility(name) {
-    return AbilityRegistry[name] || null;
-}

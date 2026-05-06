@@ -18,7 +18,7 @@ export class Supreme extends Unit {
         description: 'Long-range siege unit',
         abilityDesc: 'Line Attack & 3x damage vs castles',
         icon: '✨',
-        projectileKind: 'bolt',
+        projectileKind: 'firebeam',
         impactKind: 'magic',
         abilityIcon: '🌟',
     };

@@ -150,6 +150,17 @@ export class UnitSpawnerPlugin {
         const unit = UnitClass.create(this.game.entities.nextId, owner);
         unit.x = prefX; // Fixed position, no overlap resolution
 
+        // Apply castle level stat boosts for player units
+        if (owner === 'player' && this.game._hud) {
+            const cl = GameBalance.castleLevels;
+            const castleLevel = this.game._hud.castleLevel;
+            const hpBoost = 1 + (castleLevel - 1) * cl.unitHpBoostPerLevel;
+            const dmgBoost = 1 + (castleLevel - 1) * cl.unitDmgBoostPerLevel;
+            unit.maxHp = Math.floor(unit.maxHp * hpBoost);
+            unit.curHp = unit.maxHp;
+            unit.dmg = Math.floor(unit.dmg * dmgBoost);
+        }
+
         if (unit.special.unique) {
             if (this.game.entities.units.some(u => u.owner === owner && u.defName === defName)) return;
         }
@@ -172,6 +183,17 @@ export class UnitSpawnerPlugin {
 
         const unit = UnitClass.create(this.game.entities.nextId, owner, {}, level);
         unit.x = prefX; // Fixed position, no overlap resolution
+
+        // Apply castle level stat boosts for player hero
+        if (owner === 'player' && this.game._hud) {
+            const cl = GameBalance.castleLevels;
+            const castleLevel = this.game._hud.castleLevel;
+            const hpBoost = 1 + (castleLevel - 1) * cl.unitHpBoostPerLevel;
+            const dmgBoost = 1 + (castleLevel - 1) * cl.unitDmgBoostPerLevel;
+            unit.maxHp = Math.floor(unit.maxHp * hpBoost);
+            unit.curHp = unit.maxHp;
+            unit.dmg = Math.floor(unit.dmg * dmgBoost);
+        }
 
         if (this.game.entities.units.some(u => u.owner === owner && u.defName === 'hero')) return;
 

@@ -1,7 +1,7 @@
 export const GameBalance = {
     economy: {
         playerGoldRate: 12,
-        aiGoldRate: 13,
+        aiGoldRate: 12,
     },
     castle: {
         playerHP: 1000,
@@ -10,6 +10,16 @@ export const GameBalance = {
         defenseDamage: 35,
         defenseAttackDelay: 1300,
         defenseProjectileKind: 'bolt',
+    },
+    castleLevels: {
+        maxLevel: 10,
+        hpPerLevel: 300,
+        defenseDamagePerLevel: 10,
+        defenseRangePerLevel: 15,
+        unitHpBoostPerLevel: 0.04,
+        unitDmgBoostPerLevel: 0.04,
+        baseCost: 300,
+        costMultiplier: 2,
     },
     hero: {
         baseHP: 300,
@@ -50,7 +60,7 @@ export const GameBalance = {
         fixedDt: 1000 / 60,
     },
     ai: {
-        thinkInterval: 600,
+        thinkInterval: 1000,
         minSpawnScore: 0.15,
     },
 };

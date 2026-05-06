@@ -110,6 +110,10 @@ export const GameEvents = {
    *  Listened to by: HUD (updates HP bar) */
   CASTLE_DAMAGE: 'castle:damage',
 
+  /** Player castle leveled up — carries { newLevel, cost }.
+   *  Listened to by: GameEngine (logs), HUD (updates UI), UnitSpawnerPlugin (applies stat boosts) */
+  CASTLE_LEVEL_UP: 'castle:levelUp',
+
   /** A castle defense system fired at an enemy unit.
    *  Emitted by: CastleDefenseSystem */
   CASTLE_DEFENSE: 'castle:defense',

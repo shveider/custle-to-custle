@@ -389,6 +389,33 @@ export class CanvasRenderer {
                 ctx.beginPath(); ctx.arc(p.x, y, 9, 0, Math.PI * 2); ctx.fill();
                 break;
             }
+            case 'firebeam': {
+                const startX = p.x - p.traveled * p.dir;
+                const beamY = p.y != null ? p.y : (GROUND_Y - 35);
+                ctx.shadowColor = 'rgba(255,120,0,0.9)';
+                ctx.shadowBlur = 14;
+                const g = ctx.createLinearGradient(startX, beamY, p.x, beamY);
+                g.addColorStop(0, 'rgba(255,100,0,0.2)');
+                g.addColorStop(0.3, '#ff6600');
+                g.addColorStop(0.7, '#ffaa00');
+                g.addColorStop(1, '#ffffe0');
+                ctx.strokeStyle = g;
+                ctx.lineWidth = 10;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(startX, beamY);
+                ctx.lineTo(p.x, beamY);
+                ctx.stroke();
+                // Inner bright core
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.moveTo(startX, beamY);
+                ctx.lineTo(p.x, beamY);
+                ctx.stroke();
+                break;
+            }
         }
 
         ctx.restore();

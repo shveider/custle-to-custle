@@ -41,7 +41,12 @@ export class CombatSystem {
             const projectileKind = UnitClass?.STATS?.projectileKind || 'fire';
             const dist = Math.min(Math.abs(target.x - attacker.x), attacker.range);
             const attackerY = GROUND_Y - unitHeight(attacker.defName) / 2;
-            this.fx.spawnProjectile(projectileKind, attacker.x, attackerY, attacker.dir, Math.max(40, dist));
+            let maxDistance = Math.max(40, dist);
+            const line = AbilityRegistry.line;
+            if (line && line.hasAttackSpecial(attacker)) {
+                maxDistance = attacker.special.lineRange || attacker.range;
+            }
+            this.fx.spawnProjectile(projectileKind, attacker.x, attackerY, attacker.dir, maxDistance);
         }
 
         target.damage(dmg);
@@ -109,7 +114,12 @@ export class CombatSystem {
                 : this.config.playerCastleX;
             const dist = Math.abs(targetX - attacker.x);
             const attackerY = GROUND_Y - unitHeight(attacker.defName) / 2;
-            this.fx.spawnProjectile(projectileKind, attacker.x, attackerY, attacker.dir, Math.max(60, Math.min(dist, attacker.range)));
+            let maxDistance = Math.max(60, Math.min(dist, attacker.range));
+            const line = AbilityRegistry.line;
+            if (line && line.hasAttackSpecial(attacker)) {
+                maxDistance = attacker.special.lineRange || attacker.range;
+            }
+            this.fx.spawnProjectile(projectileKind, attacker.x, attackerY, attacker.dir, maxDistance);
         }
 
         const line = AbilityRegistry.line;

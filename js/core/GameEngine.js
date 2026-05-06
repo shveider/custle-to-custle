@@ -1,5 +1,6 @@
 import { Castle } from '../entities/Castle.js';
-import { GameEvents, EntityEvents } from './Events.js';
+import { GameEvents } from './Events.js';
+import { GameBalance } from './GameBalance.js';
 
 export class GameEngine {
     constructor(game, engineConfig) {
@@ -78,16 +79,28 @@ export class GameEngine {
             this._log('Hero leveled up to ' + level + '!');
         });
 
+        game.events.on(GameEvents.CASTLE_LEVEL_UP, (level) => {
+            this._log('Castle upgraded to level ' + level + '!');
+            this._applyCastleLevelBonuses(level);
+        });
+
         this._setupUI(cfg.uiRefs);
     }
 
     _createCastles() {
         const game = this.game;
         const cfg = game.config;
+        const castleLevel = game._hud ? game._hud.castleLevel : 1;
+        const cl = GameBalance.castleLevels;
 
+        const playerMaxHp = cfg.castleHP + (castleLevel - 1) * cl.hpPerLevel;
         const playerCastle = new Castle(
-            game.entities.nextId, 'player', cfg.castleHP,
-            cfg.playerCastleX, cfg.castleDefense
+            game.entities.nextId, 'player', playerMaxHp,
+            cfg.playerCastleX, {
+                ...cfg.castleDefense,
+                defenseDamage: cfg.castleDefense.defenseDamage + (castleLevel - 1) * cl.defenseDamagePerLevel,
+                defenseRange: cfg.castleDefense.defenseRange + (castleLevel - 1) * cl.defenseRangePerLevel,
+            }
         );
         game.entities.add(playerCastle);
 
@@ -96,6 +109,21 @@ export class GameEngine {
             cfg.battlefieldWidth - cfg.aiCastleXOffset, cfg.castleDefense
         );
         game.entities.add(aiCastle);
+    }
+
+    _applyCastleLevelBonuses(level) {
+        const cl = GameBalance.castleLevels;
+        const castle = this.game.entities.getCastle('player');
+        if (!castle) return;
+
+        const hpBonus = cl.hpPerLevel;
+        const dmgBonus = cl.defenseDamagePerLevel;
+        const rangeBonus = cl.defenseRangePerLevel;
+
+        castle.maxHp += hpBonus;
+        castle.curHp = Math.min(castle.maxHp, castle.curHp + hpBonus);
+        castle.defenseDamage += dmgBonus;
+        castle.defenseRange += rangeBonus;
     }
 
     _registerUnits() {
@@ -168,18 +196,11 @@ export class GameEngine {
                 const castleX = u.owner === 'player' ? game.config.aiCastleX : game.config.playerCastleX;
                 const distToCastle = Math.abs(u.x - castleX);
 
-                if (u.isRanged && distToCastle <= u.range && u.canAttack(gameTimeMs)) {
+                if (distToCastle <= u.range && u.canAttack(gameTimeMs)) {
                     game.events.emit(GameEvents.UNIT_ATTACK_CASTLE, u);
                     u.markAttacked(gameTimeMs);
                 } else {
                     u.move(effSec, battleLeft, battleRight);
-
-                    if (u.isMelee && ((u.owner === 'player' && u.x >= castleX) || (u.owner === 'ai' && u.x <= castleX))) {
-                        const castleOwner = u.owner === 'player' ? 'ai' : 'player';
-                        game.damageCastle(castleOwner, u.dmg);
-                        this._log((u.owner === 'player' ? '' : 'AI ') + u.defName + ' hit ' + (u.owner === 'player' ? 'AI' : 'your') + ' castle for ' + u.dmg);
-                        u.curHp = 0;
-                    }
                 }
             }
         }
@@ -230,6 +251,38 @@ export class GameEngine {
                 }
             });
         }
+
+        if (refs.castleUpgradeBtn) {
+            refs.castleUpgradeBtn.addEventListener('click', () => {
+                const hud = this.game._hud;
+                if (hud && hud.tryUpgradeCastle()) {
+                    this._addFloatingText(refs.castleUpgradeBtn, 'Castle upgraded!');
+                }
+            });
+        }
+    }
+
+    _addFloatingText(targetEl, text) {
+        if (!targetEl) return;
+        const rect = targetEl.getBoundingClientRect();
+        const el = document.createElement('div');
+        el.className = 'floating-gold';
+        el.textContent = text;
+        el.style.left = rect.left + rect.width / 2 + 'px';
+        el.style.top = rect.top + 'px';
+        el.style.color = '#f59e0b';
+        el.style.fontSize = '12px';
+        document.body.appendChild(el);
+        let time = 0;
+        const anim = () => {
+            time += 16;
+            const progress = time / 1000;
+            el.style.transform = `translateY(${-30 * progress}px)`;
+            el.style.opacity = (1 - progress).toString();
+            if (progress < 1) requestAnimationFrame(anim);
+            else el.remove();
+        };
+        requestAnimationFrame(anim);
     }
 
     _log(msg) {

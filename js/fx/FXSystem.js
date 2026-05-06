@@ -2,7 +2,7 @@ import { Projectile } from '../entities/Projectile.js';
 import { Effect } from '../entities/Effect.js';
 import { GameEvents } from '../core/Events.js';
 
-const PROJECTILE_SPEED = { arrow: 420, bolt: 360, fire: 300, lightning: 500 };
+const PROJECTILE_SPEED = { arrow: 420, bolt: 360, fire: 300, lightning: 500, firebeam: 1500 };
 const IMPACT_LIFE = { hit: 220, spark: 180, magic: 260, lightning: 200, shield: 240, summon: 300, heal: 280 };
 const IMPACT_SIZE = { hit: 10, spark: 8, magic: 12, lightning: 14, shield: 16, summon: 18, heal: 12 };
 const IMPACT_COLOR = {

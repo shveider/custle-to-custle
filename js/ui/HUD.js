@@ -23,6 +23,7 @@ export class HUD {
         this._playerCastleMaxHp = 0;
         this._aiCastleHp = 0;
         this._aiCastleMaxHp = 0;
+        this._castleLevel = 1;
         this._dirty = true;
         this._floatingGold = [];
 
@@ -44,8 +45,10 @@ export class HUD {
             this._playerCastleMaxHp = 0;
             this._aiCastleHp = 0;
             this._aiCastleMaxHp = 0;
+            this._castleLevel = 1;
             this._dirty = true;
             this._updateHeroStatsUI();
+            this._updateCastleLevelUI();
         });
 
         this.game.events.on(GameEvents.GOLD, (owner, amount) => {
@@ -199,5 +202,44 @@ export class HUD {
         if (refs.heroLevelEl) refs.heroLevelEl.textContent = this._heroLevel;
         if (refs.heroExpText) refs.heroExpText.textContent = Math.floor(this._heroExp) + '/' + this._heroExpToNext;
         if (refs.heroXpBar) refs.heroXpBar.style.width = clamp(this._heroExp / this._heroExpToNext * 100, 0, 100) + '%';
+
+        this._updateCastleLevelUI();
+    }
+
+    get castleLevel() { return this._castleLevel; }
+
+    get castleUpgradeCost() {
+        const cfg = GameBalance.castleLevels;
+        if (this._castleLevel >= cfg.maxLevel) return null;
+        return Math.floor(cfg.baseCost * Math.pow(cfg.costMultiplier, this._castleLevel - 1));
+    }
+
+    tryUpgradeCastle() {
+        const cost = this.castleUpgradeCost;
+        if (cost === null) return false;
+        if (this._gold < cost) return false;
+        this._gold -= cost;
+        this._castleLevel++;
+        this._dirty = true;
+        this.game.events.emit(GameEvents.CASTLE_LEVEL_UP, this._castleLevel, cost);
+        return true;
+    }
+
+    _updateCastleLevelUI() {
+        const refs = this.refs;
+        if (refs.castleLevelEl) refs.castleLevelEl.textContent = this._castleLevel;
+        const cost = this.castleUpgradeCost;
+        if (refs.castleUpgradeBtn) {
+            if (cost === null) {
+                refs.castleUpgradeBtn.textContent = 'MAX';
+                refs.castleUpgradeBtn.disabled = true;
+                refs.castleUpgradeBtn.classList.add('maxed');
+            } else {
+                refs.castleUpgradeBtn.textContent = 'Upgrade (' + cost + 'g)';
+                refs.castleUpgradeBtn.disabled = this._gold < cost;
+                refs.castleUpgradeBtn.classList.toggle('disabled', this._gold < cost);
+                refs.castleUpgradeBtn.classList.remove('maxed');
+            }
+        }
     }
 }

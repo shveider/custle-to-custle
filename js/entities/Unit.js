@@ -11,8 +11,6 @@ export class Unit extends Entity {
         type: UnitType.MELEE,
     };
 
-    static SPECIAL_ABILITY = null;
-
     static get isRanged() {
         return this.STATS.type === UnitType.RANGED || this.STATS.type === UnitType.SIEGE;
     }
@@ -60,14 +58,6 @@ export class Unit extends Entity {
 
     get isRanged() {
         return this.unitType === UnitType.RANGED || this.unitType === UnitType.SIEGE;
-    }
-
-    get isMelee() {
-        return this.unitType === UnitType.MELEE;
-    }
-
-    get isSiege() {
-        return this.unitType === UnitType.SIEGE;
     }
 
     canAttack(gameTimeMs) {
