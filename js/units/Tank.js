@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Tank extends Unit {
     static STATS = {
@@ -9,8 +9,8 @@ export class Tank extends Unit {
         speed: 0.5,
         range: 48,
         type: UnitType.MELEE,
-        special: { shieldBlock: 0.8 },
-        resourceType: 'stamina',
+        special: { [SpecialAbility.SHIELD_BLOCK]: 0.8 },
+        resourceType: ResourceType.STAMINA,
         resourceMax: 150,
         resourceRegenPerSec: 30,
         resourceCostPerAttack: 35,

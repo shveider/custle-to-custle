@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Assassin extends Unit {
     static STATS = {
@@ -9,8 +9,8 @@ export class Assassin extends Unit {
         speed: 2.2,
         range: 60,
         type: UnitType.MELEE,
-        special: { criticalStrike: 0.3, critMultiplier: 1.8 },
-        resourceType: 'stamina',
+        special: { [SpecialAbility.CRITICAL_STRIKE]: 0.3, critMultiplier: 1.8 },
+        resourceType: ResourceType.STAMINA,
         resourceMax: 90,
         resourceRegenPerSec: 18,
         resourceCostPerAttack: 18,

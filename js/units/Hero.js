@@ -1,6 +1,6 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js';
-import { GameBalance } from '../core/GameBalance.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
+import { GameBalance } from '../core/GameBalance.js';
 
 export class Hero extends Unit {
     static STATS = {
@@ -10,8 +10,8 @@ export class Hero extends Unit {
         speed: 1.0,
         range: 60,
         type: UnitType.HERO,
-        special: { unique: true },
-        resourceType: 'stamina',
+        special: { [SpecialAbility.UNIQUE]: true },
+        resourceType: ResourceType.STAMINA,
         resourceMax: 125,
         resourceRegenPerSec: 20,
         resourceCostPerAttack: 25,

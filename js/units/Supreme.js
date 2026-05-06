@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Supreme extends Unit {
     static STATS = {
@@ -9,8 +9,8 @@ export class Supreme extends Unit {
         speed: 0.35,
         range: 300,
         type: UnitType.SIEGE,
-        special: { siege: true, castleBonus: 3.0, line: true, lineRange: 320, attackDelay: 2400 },
-        resourceType: 'mana',
+        special: { [SpecialAbility.SIEGE]: true, castleBonus: 3.0, [SpecialAbility.LINE]: true, lineRange: 320, attackDelay: 2400 },
+        resourceType: ResourceType.MANA,
         resourceMax: 120,
         resourceRegenPerSec: 8,
         resourceCostPerAttack: 40,

@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Mage extends Unit {
     static STATS = {
@@ -9,8 +9,8 @@ export class Mage extends Unit {
         speed: 2,
         range: 170,
         type: UnitType.RANGED,
-        special: { chain: 0.5, chainRange: 120 },
-        resourceType: 'mana',
+        special: { [SpecialAbility.CHAIN]: 0.5, chainRange: 120 },
+        resourceType: ResourceType.MANA,
         resourceMax: 110,
         resourceRegenPerSec: 13,
         resourceCostPerAttack: 20,

@@ -1,4 +1,5 @@
 import { GameEvents } from '../core/Events.js';
+import { ResourceType } from '../core/UnitTypes.js';
 
 const aiFlip = 'scaleX(-1)';
 const noFlip = '';
@@ -86,7 +87,7 @@ export class UnitRenderer {
             el._hpFill.style.background = hpColorFast(hpPct);
             el._hpBar.style.transform = flip;
             el._rsFill.style.width = clamp(u.resource / u.resourceMax * 100, 0, 100) + '%';
-            el._rsFill.style.background = u.resourceType === 'mana' ? '#60a5fa' : '#f59e0b';
+            el._rsFill.style.background = u.resourceType === ResourceType.MANA ? '#60a5fa' : '#f59e0b';
             el._rsBar.style.transform = flip;
 
             const anim = u.animState;

@@ -1,4 +1,5 @@
 import { GameEvents } from '../core/Events.js';
+import { ResourceType } from '../core/UnitTypes'
 
 /** @constant {number} Total height of the game field canvas in pixels */
 const FIELD_H = 460;
@@ -267,7 +268,7 @@ export class CanvasRenderer {
             roundRect(ctx, barX, barY + 5, barW, 3, 1);
             ctx.fill();
             if (rsPct > 0) {
-                ctx.fillStyle = u.resourceType === 'mana' ? '#60a5fa' : '#f59e0b';
+                ctx.fillStyle = u.resourceType === ResourceType.MANA ? '#60a5fa' : '#f59e0b';
                 roundRect(ctx, barX, barY + 5, barW * rsPct, 3, 1);
                 ctx.fill();
             }
@@ -406,7 +407,7 @@ export class CanvasRenderer {
         const y = GROUND_Y - 35;
         ctx.save();
 
-        switch (fx.type) {
+        switch (fx.type) { // fx.type is set by SpecialAbility constant strings
             case 'impact': {
                 const s = 0.6 + 0.8 * t;
                 ctx.globalAlpha = clamp(1 - t, 0, 1);

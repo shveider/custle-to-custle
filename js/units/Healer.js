@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js';
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Healer extends Unit {
     static STATS = {
@@ -10,12 +10,12 @@ export class Healer extends Unit {
         range: 150,
         type: UnitType.RANGED,
         special: {
-            healSplash: true,
+            [SpecialAbility.HEAL_SPLASH]: true,
             healAmount: 35,
             healInterval: 600,
             resourceCostPerHeal: 14
         },
-        resourceType: 'mana',
+        resourceType: ResourceType.MANA,
         resourceMax: 160,
         resourceRegenPerSec: 8,
         displayName: 'Healer',

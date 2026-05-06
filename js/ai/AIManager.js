@@ -1,5 +1,6 @@
 import { getWaveCompositions, calcWaveCost, flattenWaveUnits } from './WaveCompositions.js';
 import { GameEvents } from '../core/Events.js';
+import { UnitType } from '../core/UnitTypes.js';
 
 const Phase = { IDLE: 'idle', PLANNING: 'planning', ATTACKING: 'attacking', DEFENDING: 'defending' };
 
@@ -36,7 +37,7 @@ export class AIManager {
 
         for (const key of unitRegistry.keys()) {
             const UnitClass = unitRegistry.get(key);
-            if (UnitClass.STATS?.type === 'ranged') {
+            if (UnitClass.STATS?.type === UnitType.RANGED) {
                 counterMap[key] = 'assassin';
             } else if (key === 'hero') {
                 counterMap[key] = 'tank';
@@ -138,7 +139,7 @@ export class AIManager {
         }
         for (const u of aiUnits) {
             if (u.x < nearestAiX) nearestAiX = u.x;
-            if (u.unitType === 'melee' || u.defName === 'hero') aiHasFrontline = true;
+            if (u.unitType === UnitType.MELEE || u.defName === 'hero') aiHasFrontline = true;
             if (u.defName === 'hero') aiHeroAlive = true;
         }
 
@@ -181,7 +182,7 @@ export class AIManager {
         if (counterTarget && this.game.entities.countByType('player', counterTarget) > 0) score += 0.8;
 
         const myRole = this._unitRoles[unitName]?.role;
-        if (myRole === 'melee' && !ctx.aiHasFrontline) score += 1.5;
+        if (myRole === UnitType.MELEE && !ctx.aiHasFrontline) score += 1.5;
 
         if (ctx.enemyNearCastle) {
             if (unitName === 'tank' || unitName === 'giant') score += 3.0;

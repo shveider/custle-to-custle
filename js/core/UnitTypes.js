@@ -19,4 +19,6 @@ export const SpecialAbility = {
     SUMMON: 'summon',
     SIEGE: 'siege',
     LINE: 'line',
+    UNIQUE: 'unique',
+    HEAL_SPLASH: 'healSplash',
 };

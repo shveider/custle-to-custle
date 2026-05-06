@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Archer extends Unit {
     static STATS = {
@@ -9,8 +9,8 @@ export class Archer extends Unit {
         speed: 1.0,
         range: 160,
         type: UnitType.RANGED,
-        special: { piercing: 0.5 },
-        resourceType: 'stamina',
+        special: { [SpecialAbility.PIERCING]: 0.5 },
+        resourceType: ResourceType.STAMINA,
         resourceMax: 80,
         resourceRegenPerSec: 12,
         resourceCostPerAttack: 15,

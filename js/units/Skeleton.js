@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType } from '../core/UnitTypes.js';
 
 export class Skeleton extends Unit {
     static STATS = {
@@ -10,7 +10,7 @@ export class Skeleton extends Unit {
         range: 46,
         type: UnitType.MELEE,
         special: {},
-        resourceType: 'stamina',
+        resourceType: ResourceType.STAMINA,
         resourceMax: 50,
         resourceRegenPerSec: 10,
         resourceCostPerAttack: 10,

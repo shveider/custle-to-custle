@@ -48,21 +48,6 @@ All unit classes now have **unified metadata** in `STATS`:
 - `impactKind` — Type of impact effect ('hit', 'magic', 'spark', 'shield')
 
 Example (`js/units/Archer.js`):
-```javascript
-static STATS = {
-    cost: 100, hp: 65, dmg: 20, speed: 1.0,
-    range: 180, type: 'ranged',
-    special: { piercing: 0.5 },
-    displayName: 'Archer',
-    description: 'Versatile ranged attacker',
-    abilityDesc: 'Piercing (+50% damage vs Hero units)',
-    icon: '🏹',
-    projectileKind: 'arrow',
-    impactKind: 'hit',
-    abilityIcon: '🎯',
-    // ... resource stats
-};
-```
 
 ### Key Patterns
 - Cross-system communication flows through `game.events.emit/on`

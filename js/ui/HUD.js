@@ -112,20 +112,18 @@ export class HUD {
     }
 
     _updateHeroStatsUI() {
-        const hero = this.game.entities.units.find(u => u.defName === 'hero' && u.owner === 'player' && u.curHp > 0);
-        if (hero) {
-            if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hero.maxHp;
-            if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = hero.dmg;
-            if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = hero.speed.toFixed(1);
-        } else {
-            const level = this._heroLevel;
-            const hp = Hero.STATS.hp + (level - 1) * 50;
-            const dmg = Hero.STATS.dmg + (level - 1) * 8;
-            const speed = Hero.STATS.speed + (level - 1) * 0.1;
-            if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hp.toString();
-            if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = dmg.toString();
-            if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = speed.toFixed(1);
-        }
+        const hero =
+          this.game.entities.units.find(u => u.defName === 'hero' && u.owner === 'player' && u.curHp > 0)
+          || Hero.create(
+            'hero-for-stats',
+          'player',
+            {},
+            this._heroLevel,
+          )
+
+        if (this.refs.heroHpStat) this.refs.heroHpStat.textContent = hero.maxHp;
+        if (this.refs.heroDmgStat) this.refs.heroDmgStat.textContent = hero.dmg;
+        if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = hero.speed.toFixed(1);
     }
 
     _addFloatingGold(amount) {

@@ -1,5 +1,5 @@
 import { Unit } from '../entities/Unit.js';
-import { UnitType } from '../core/UnitTypes.js'
+import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 
 export class Giant extends Unit {
     static STATS = {
@@ -9,8 +9,8 @@ export class Giant extends Unit {
         speed: 0.4,
         range: 60,
         type: UnitType.MELEE,
-        special: { area: 0.5, areaRadius: 60, areaMultiplier: 0.6 },
-        resourceType: 'stamina',
+        special: { [SpecialAbility.AREA]: 0.5, areaRadius: 60, areaMultiplier: 0.6 },
+        resourceType: ResourceType.STAMINA,
         resourceMax: 180,
         resourceRegenPerSec: 12,
         resourceCostPerAttack: 45,

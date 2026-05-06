@@ -1,4 +1,5 @@
 import { Entity } from './Entity.js';
+import { UnitType, ResourceType } from '../core/UnitTypes.js';
 
 export class Unit extends Entity {
     static STATS = {
@@ -7,13 +8,13 @@ export class Unit extends Entity {
         dmg: 10,
         speed: 0.8,
         range: 50,
-        type: 'melee',
+        type: UnitType.MELEE,
     };
 
     static SPECIAL_ABILITY = null;
 
     static get isRanged() {
-        return this.STATS.type === 'ranged' || this.STATS.type === 'siege';
+        return this.STATS.type === UnitType.RANGED || this.STATS.type === UnitType.SIEGE;
     }
 
     static get cost() {
@@ -35,7 +36,7 @@ export class Unit extends Entity {
         this.attackDelay = stats.attackDelay || 800;
         this.lastAttack = 0;
 
-        this.resourceType = stats.resourceType || 'stamina';
+        this.resourceType = stats.resourceType || ResourceType.STAMINA;
         this.resourceMax = stats.resourceMax || 100;
         this.resource = this.resourceMax;
         this.resourceRegenPerSec = stats.resourceRegenPerSec || 10;
@@ -58,15 +59,15 @@ export class Unit extends Entity {
     }
 
     get isRanged() {
-        return this.unitType === 'ranged' || this.unitType === 'siege';
+        return this.unitType === UnitType.RANGED || this.unitType === UnitType.SIEGE;
     }
 
     get isMelee() {
-        return this.unitType === 'melee';
+        return this.unitType === UnitType.MELEE;
     }
 
     get isSiege() {
-        return this.unitType === 'siege';
+        return this.unitType === UnitType.SIEGE;
     }
 
     canAttack(gameTimeMs) {
