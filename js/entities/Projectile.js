@@ -6,10 +6,11 @@
  * `UnitRenderer._renderProjectiles()` each frame.
  */
 export class Projectile {
-    constructor(id, kind, x, dir, speed, maxDistance) {
+    constructor(id, kind, x, y, dir, speed, maxDistance) {
         this.id = id;
         this.kind = kind;
         this.x = x;
+        this.y = y;
         this.dir = dir;
         this.speed = speed;
         this.traveled = 0;

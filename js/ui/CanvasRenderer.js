@@ -330,10 +330,10 @@ export class CanvasRenderer {
      * Draws a projectile (arrow, bolt, fire, or lightning) on the canvas
      * @private
      * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context
-     * @param {Object} p - Projectile object with properties: kind, x, dir, targetX
+     * @param {Object} p - Projectile object with properties: kind, x, y, dir, targetX
      */
     _drawProjectile(ctx, p) {
-        const y = GROUND_Y - 35; // visual height: 10px above ground
+        const y = p.y != null ? p.y : (GROUND_Y - 35);
         ctx.save();
 
         switch (p.kind) {
@@ -403,13 +403,14 @@ export class CanvasRenderer {
      */
     _drawEffect(ctx, fx) {
         const t = 1 - fx.progress; // 0 = fresh, 1 = expired
+        const y = GROUND_Y - 35;
         ctx.save();
 
         switch (fx.type) {
             case 'impact': {
                 const s = 0.6 + 0.8 * t;
                 ctx.globalAlpha = clamp(1 - t, 0, 1);
-                ctx.translate(fx.x, GROUND_Y - 100);
+                ctx.translate(fx.x, y);
                 ctx.scale(s, s);
                 const r = fx.size / 2;
                 const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
@@ -429,7 +430,7 @@ export class CanvasRenderer {
 
             case 'chain-lightning': {
                 ctx.globalAlpha = clamp(1 - t * 1.5, 0, 1);
-                const y = GROUND_Y - 110;
+                const y = GROUND_Y - 40;
                 const dx = fx.targetX - fx.x;
                 // Outer cyan beam
                 ctx.strokeStyle = '#00d0ff'; ctx.lineWidth = 3;
@@ -452,7 +453,7 @@ export class CanvasRenderer {
             case 'shield-block': {
                 const prog = 1 - t;
                 ctx.globalAlpha = clamp(1 - prog, 0, 1);
-                ctx.translate(fx.x, GROUND_Y - 116);
+                ctx.translate(fx.x, GROUND_Y - 40);
                 ctx.scale(0.5 + prog, 0.5 + prog);
                 ctx.strokeStyle = 'rgba(100,180,255,0.7)';
                 ctx.lineWidth = Math.max(1, 3 - prog * 2);
@@ -463,7 +464,7 @@ export class CanvasRenderer {
             case 'summon': {
                 const prog = 1 - t;
                 ctx.globalAlpha = clamp((1 - prog) * 0.7, 0, 1);
-                ctx.translate(fx.x, GROUND_Y - 110);
+                ctx.translate(fx.x, GROUND_Y - 35);
                 ctx.scale(prog * 2, prog * 2);
                 const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 15);
                 g.addColorStop(0, 'rgba(80,200,80,0.6)');
@@ -476,7 +477,7 @@ export class CanvasRenderer {
             case 'area-attack': {
                 const prog = 1 - t;
                 ctx.globalAlpha = clamp(1 - prog, 0, 1);
-                ctx.translate(fx.x, GROUND_Y - 90);
+                ctx.translate(fx.x, GROUND_Y - 35);
                 ctx.scale(0.3 + prog * 1.7, 0.3 + prog * 1.7);
                 ctx.strokeStyle = 'rgba(255,120,0,0.6)';
                 ctx.lineWidth = 2;
@@ -486,7 +487,7 @@ export class CanvasRenderer {
 
             case 'dmg': {
                 ctx.globalAlpha = clamp(1 - t, 0, 1);
-                const yFloat = GROUND_Y - 100 - t * 38;
+                const yFloat = GROUND_Y - 60;
                 ctx.font = `700 ${fx.crit ? 17 : 14}px Inter, Arial, sans-serif`;
                 ctx.fillStyle = fx.crit ? '#ffd166' : '#fff';
                 ctx.shadowColor = fx.crit ? 'rgba(255,200,0,0.6)' : 'rgba(0,0,0,0.65)';

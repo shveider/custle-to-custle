@@ -26,7 +26,7 @@ const IMPACT_COLOR = {
  * @class FXSystem
  * @example
  *   const fx = new FXSystem(game);
- *   fx.spawnProjectile('bolt', 100, 1, 170);
+ *   fx.spawnProjectile('bolt', 100, 345, 1, 170);
  *   fx.spawnImpact(150, 'magic');
  *   fx.spawnDamageNumber(150, 42, false);
  */
@@ -73,12 +73,13 @@ export class FXSystem {
      * Spawns a flying projectile that travels in one direction.
      * @param {string} kind - Projectile type ('arrow' | 'bolt' | 'fire' | 'lightning').
      * @param {number} x - Spawn position (world X coordinate).
+     * @param {number} y - Spawn position (world Y coordinate).
      * @param {number} dir - Travel direction (1 = right, -1 = left).
      * @param {number} maxDistance - Maximum travel distance in pixels before expiry.
      */
-    spawnProjectile(kind, x, dir, maxDistance) {
+    spawnProjectile(kind, x, y, dir, maxDistance) {
         const speed = PROJECTILE_SPEED[kind] || 360;
-        this.projectiles.push(new Projectile(this._nextProjId++, kind, x, dir, speed, maxDistance));
+        this.projectiles.push(new Projectile(this._nextProjId++, kind, x, y, dir, speed, maxDistance));
     }
 
     /**

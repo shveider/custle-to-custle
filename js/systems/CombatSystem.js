@@ -1,6 +1,14 @@
 import { GameEvents } from '../core/Events.js';
 import { AbilityRegistry } from './abilities/AbilityRegistry.js';
 
+const GROUND_Y = 380; // Match CanvasRenderer.GROUND_Y
+
+function unitHeight(defName) {
+    if (defName === 'giant') return 62;
+    if (defName === 'skeleton') return 38;
+    return 52;
+}
+
 export class CombatSystem {
     constructor(game, fxSystem, config) {
         this.game = game;
@@ -32,7 +40,8 @@ export class CombatSystem {
             const UnitClass = this.game.unitRegistry.get(attacker.defName);
             const projectileKind = UnitClass?.STATS?.projectileKind || 'fire';
             const dist = Math.min(Math.abs(target.x - attacker.x), attacker.range);
-            this.fx.spawnProjectile(projectileKind, attacker.x, attacker.dir, Math.max(40, dist));
+            const attackerY = GROUND_Y - unitHeight(attacker.defName) / 2;
+            this.fx.spawnProjectile(projectileKind, attacker.x, attackerY, attacker.dir, Math.max(40, dist));
         }
 
         target.damage(dmg);
@@ -99,7 +108,8 @@ export class CombatSystem {
                 ? this.config.aiCastleX
                 : this.config.playerCastleX;
             const dist = Math.abs(targetX - attacker.x);
-            this.fx.spawnProjectile(projectileKind, attacker.x, attacker.dir, Math.max(60, Math.min(dist, attacker.range)));
+            const attackerY = GROUND_Y - unitHeight(attacker.defName) / 2;
+            this.fx.spawnProjectile(projectileKind, attacker.x, attackerY, attacker.dir, Math.max(60, Math.min(dist, attacker.range)));
         }
 
         const line = AbilityRegistry.line;

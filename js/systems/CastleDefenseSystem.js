@@ -1,5 +1,7 @@
 import { GameEvents } from '../core/Events.js';
 
+const GROUND_Y = 380; // Match CanvasRenderer.GROUND_Y
+
 export class CastleDefenseSystem {
     constructor(game, fxSystem) {
         this.game = game;
@@ -18,7 +20,9 @@ export class CastleDefenseSystem {
 
             const dist = Math.abs(enemy.x - castle.x);
             const dir = castle.owner === 'player' ? 1 : -1;
-            this.fx.spawnProjectile(castle.defenseProjectileKind, castle.x, dir, Math.max(60, dist));
+            // Castle projectiles spawn from castle height (assume castle center at GROUND_Y - 40)
+            const castleY = GROUND_Y - 40;
+            this.fx.spawnProjectile(castle.defenseProjectileKind, castle.x, castleY, dir, Math.max(60, dist));
 
             enemy.damage(castle.defenseDamage);
             this.fx.spawnImpact(enemy.x, 'lightning');
