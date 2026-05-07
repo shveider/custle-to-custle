@@ -91,7 +91,7 @@ export class GameEngine {
 
         // Initialize AI phase display
         const initPhaseEl = document.getElementById('ai-phase');
-        if (initPhaseEl) initPhaseEl.textContent = 'idle';
+        if (initPhaseEl) initPhaseEl.textContent = 'planning';
 
         this._setupUI(cfg.uiRefs);
     }

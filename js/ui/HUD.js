@@ -52,21 +52,18 @@ export class HUD {
         });
 
         this.game.events.on(GameEvents.GOLD, (owner, amount) => {
-            if (owner === 'player') this._addFloatingGold(amount);
+            if (owner === 'player') {
+                this._gold += amount;
+                this._addFloatingGold(amount);
+            } else {
+                this._aiGold += amount;
+            }
             this._dirty = true;
         });
         this.game.events.on(GameEvents.GET_GOLD, (owner, cb) => {
             cb(owner === 'player' ? this._gold : this._aiGold);
         });
-        this.game.events.on(GameEvents.SPEND_GOLD, (owner, amount) => {
-            const key = owner === 'player' ? '_gold' : '_aiGold';
-            if (this[key] >= amount) {
-                this[key] -= amount;
-                this._dirty = true;
-                return true;
-            }
-            return false;
-        });
+
         this.game.events.on(GameEvents.TICK, () => {
             const rate = this.game.config.goldRate || 11;
             const aiRate = this.game.config.aiGoldRate || 17;

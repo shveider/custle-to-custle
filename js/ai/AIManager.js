@@ -2,7 +2,7 @@ import { getWaveCompositions, calcWaveCost, flattenWaveUnits } from './WaveCompo
 import { GameEvents } from '../core/Events.js'
 import { UnitType } from '../core/UnitTypes.js'
 
-const Phase = {IDLE: 'idle', PLANNING: 'planning', ATTACKING: 'attacking', DEFENDING: 'defending'}
+const Phase = {PLANNING: 'planning', ATTACKING: 'attacking', DEFENDING: 'defending'}
 
 const THREAT_WEIGHTS = {
   low:    {dps: 0.4, ehp: 0.2, eff: 0.4},
@@ -29,7 +29,7 @@ export class AIManager {
     this._recentPlayerSpawns = []
     this._playerUnitCounts = {}
     this._mostFrequentlySpawnedUnit = null
-    this._currentPhase = Phase.IDLE
+    this._currentPhase = Phase.PLANNING
     this._plannedWave = null
     this._currentWaveSpawnIndex = 0
     this._lastWaveSpawnTimestamp = 0
@@ -106,7 +106,7 @@ export class AIManager {
     this._recentPlayerSpawns = []
     this._playerUnitCounts = {}
     this._mostFrequentlySpawnedUnit = null
-    this._currentPhase = Phase.IDLE
+    this._currentPhase = Phase.PLANNING
     this._plannedWave = null
     this._currentWaveSpawnIndex = 0
     this._lastWaveSpawnTimestamp = 0
@@ -126,13 +126,13 @@ export class AIManager {
     const gold = this.game.getGold('ai')
     if (gold <= 0 && this._currentPhase !== Phase.DEFENDING) return
 
-    this._aggressionMultiplier = 1 + Math.min(this._totalGameTime / 120, 1.5)
+    this._aggressionMultiplier = 1 + Math.min(this._totalGameTime / 100, 1.5)
     this._trackGoldHoarding(gold)
     this._updateDominantUnit()
 
     const ctx = this._computeContext()
 
-    if (this._trySpawnHero(ctx, gold)) return
+    this._trySpawnHero(ctx, gold)
 
     const phase = this._decidePhase(ctx, gold)
     if (phase !== this._currentPhase) {
@@ -144,7 +144,6 @@ export class AIManager {
       case Phase.DEFENDING: this._executeDefend(ctx, gold);     break
       case Phase.ATTACKING: this._executeAttackWave(ctx, gold); break
       case Phase.PLANNING:  this._executeAttackWave(ctx, gold); break
-      case Phase.IDLE:      this._tryIdleSkirmish(ctx, gold);   break
     }
   }
 
@@ -306,87 +305,94 @@ export class AIManager {
 
   _decidePhase(gameContext, availableGold) {
     // 1. Defence always wins
-    if (gameContext.enemyNearCastle || gameContext.aiCastleHpPct < 0.25) return Phase.DEFENDING
+    if (gameContext.enemyNearCastle || gameContext.aiCastleHpPct < 0.25) return Phase.DEFENDING;
 
     // 2. Continue a wave already in progress — check by wave index, not by phase
     if (this._plannedWave) {
-      const totalUnits = flattenWaveUnits(this._plannedWave).length
+      const totalUnits = flattenWaveUnits(this._plannedWave).length;
       if (this._currentWaveSpawnIndex < totalUnits) {
         // Bail only if army was wiped AND we're broke
-        if (gameContext.aiUnitCount === 0 && availableGold < 80) {
-          this._plannedWave           = null
-          this._currentWaveSpawnIndex = 0
+        if (gameContext.aiUnitCount === 0 && availableGold < 50) {
+          this._plannedWave           = null;
+          this._currentWaveSpawnIndex = 0;
         } else {
-          return Phase.ATTACKING
+          return Phase.ATTACKING;
         }
       } else {
         // Wave finished — clean up
-        this._plannedWave           = null
-        this._currentWaveSpawnIndex = 0
+        this._plannedWave           = null;
+        this._currentWaveSpawnIndex = 0;
+        this._currentPhase = Phase.PLANNING;
       }
     }
 
     // 3. Opportunistic push when already winning the frontline
-    const pushThreshold = Math.max(0.35, 0.55 - (this._aggressionMultiplier - 1) * 0.1)
+    const pushThreshold = Math.max(0.25, 0.45 - (this._aggressionMultiplier - 1) * 0.1);
     if (
       gameContext.aiUnitCount > 0 &&
       gameContext.battleLinePosition > gameContext.battlefieldWidth * pushThreshold &&
-      gameContext.powerRatio >= 0.9 &&
+      gameContext.powerRatio >= 0.8 &&
       (gameContext.aiUnitCount >= gameContext.playerUnitCount || gameContext.playerUnitCount <= 1)
     ) {
-      return Phase.ATTACKING
+      return Phase.ATTACKING;
     }
 
-    // 4. Plan and commit to a new wave
-    const selectedWave = this._evaluateWave(gameContext, availableGold)
+    // 4. Plan and commit to a new wave - be more aggressive with spending
+    const selectedWave = this._evaluateWave(gameContext, availableGold);
     if (selectedWave) {
-      this._plannedWave           = selectedWave
-      this._currentWaveSpawnIndex = 0
-      return Phase.PLANNING
+      this._plannedWave           = selectedWave;
+      this._currentWaveSpawnIndex = 0;
+      return Phase.PLANNING;
     }
 
-    return Phase.IDLE
+    // 5. If we have gold but no wave, try skirmish
+    if (availableGold >= 30) {
+      this._trySkirmishSpawn(gameContext, availableGold);
+    }
+
+    return Phase.PLANNING;
   }
 
   _evaluateWave(gameContext, availableGold) {
-    let bestWave           = null
-    let bestWaveScore      = -1
+    let bestWave           = null;
+    let bestWaveScore      = -1;
 
     // Threshold scales down over time so the AI doesn't hoard waiting for the "perfect" wave
-    const affordabilityThreshold = Math.max(0.3, 0.6 - this._totalGameTime / 300)
+    // Be much more aggressive - start waves with just 25% of cost
+    const affordabilityThreshold = Math.max(0.25, 0.4 - this._totalGameTime / 300);
 
     for (const waveComposition of this._waveCompositions) {
-      if (this._totalGameTime < waveComposition.minTime) continue
+      if (this._totalGameTime < waveComposition.minTime) continue;
 
-      const waveCost = calcWaveCost(waveComposition, this.game.unitRegistry)
-      if (availableGold < waveCost * affordabilityThreshold) continue
+      const waveCost = calcWaveCost(waveComposition, this.game.unitRegistry);
+      if (availableGold < waveCost * affordabilityThreshold) continue;
 
-      let currentWaveScore = 0
-      let isViable          = true
+      let currentWaveScore = 0;
+      let isViable          = true;
 
       for (const unitType of waveComposition.units) {
-        const unitScore = this._scoreUnit(unitType.type, gameContext)
+        const unitScore = this._scoreUnit(unitType.type, gameContext);
         if (unitScore < -1) { isViable = false; break }
-        currentWaveScore += unitScore * unitType.count
+        currentWaveScore += unitScore * unitType.count;
       }
-      if (!isViable) continue
+      if (!isViable) continue;
 
-      if (availableGold >= waveCost) currentWaveScore += 3
+      if (availableGold >= waveCost) currentWaveScore += 3;
 
-      const uniqueUnitTypes = new Set(waveComposition.units.map(u => u.type)).size
-      currentWaveScore += uniqueUnitTypes * 0.4
+      const uniqueUnitTypes = new Set(waveComposition.units.map(u => u.type)).size;
+      currentWaveScore += uniqueUnitTypes * 0.4;
 
-      if (gameContext.enemyNearCastle) currentWaveScore += 3
+      if (gameContext.enemyNearCastle) currentWaveScore += 3;
 
-      currentWaveScore *= this._aggressionMultiplier
+      currentWaveScore *= this._aggressionMultiplier;
 
       if (currentWaveScore > bestWaveScore) {
-        bestWaveScore = currentWaveScore
-        bestWave      = {...waveComposition, totalCost: waveCost}
+        bestWaveScore = currentWaveScore;
+        bestWave      = {...waveComposition, totalCost: waveCost};
       }
     }
 
-    return bestWaveScore > 0 ? bestWave : null
+    return bestWaveScore > 0 ? bestWave : null;
   }
 
   // ─── Phase execution ──────────────────────────────────────────────────────
@@ -399,7 +405,7 @@ export class AIManager {
         this._currentWaveSpawnIndex    = 0
         this._lastWaveSpawnTimestamp    = 0
       } else {
-        this._currentPhase = Phase.IDLE
+        this._trySkirmishSpawn(gameContext, availableGold)
         return
       }
     }
@@ -409,7 +415,7 @@ export class AIManager {
 
     const allUnitsInWave = flattenWaveUnits(this._plannedWave)
     if (this._currentWaveSpawnIndex >= allUnitsInWave.length) {
-      this._currentPhase       = Phase.IDLE
+      this._currentPhase       = Phase.PLANNING
       this._plannedWave = null
       return
     }
@@ -423,7 +429,7 @@ export class AIManager {
       this._currentWaveSpawnIndex++
       this._lastWaveSpawnTimestamp = currentTime
     } else if (gameContext.aiUnitCount === 0 && availableGold < unitCost * 0.4) {
-      this._currentPhase       = Phase.IDLE
+      this._currentPhase       = Phase.PLANNING
       this._plannedWave = null
     }
   }
@@ -434,41 +440,42 @@ export class AIManager {
       .map(unitType => ({
         unitType,
         score: this._scoreUnit(unitType, gameContext),
-        cost:  this.game.unitRegistry.get(unitType)?.STATS.cost || 50,
+        cost: this.game.unitRegistry.get(unitType)?.STATS.cost || 50,
       }))
       .filter(unit => unit.score > 0)
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => b.score - a.score);
 
-    let remainingGold   = availableGold
-    let spawnCount      = 0
-    const maxSpawnCount = gameContext.aiCastleHpPct < 0.3 ? 4 : 3
+    let remainingGold   = availableGold;
+    let spawnCount      = 0;
+    const maxSpawnCount = gameContext.aiCastleHpPct < 0.3 ? 6 : 4;
 
     for (const unit of scoredUnits) {
-      if (unit.cost > remainingGold || spawnCount >= maxSpawnCount) continue
-      this.game.spawnUnit('ai', unit.unitType)
-      remainingGold -= unit.cost
-      spawnCount++
+      if (unit.cost > remainingGold || spawnCount >= maxSpawnCount) continue;
+      this.game.spawnUnit('ai', unit.unitType);
+      remainingGold -= unit.cost;
+      spawnCount++;
     }
   }
 
-  _tryIdleSkirmish(gameContext, availableGold) {
-    if (gameContext.aiUnitCount >= 6) return
+  _trySkirmishSpawn(gameContext, availableGold) {
+    if (gameContext.aiUnitCount >= 8) return;
 
-    const minGoldThreshold = this._goldHoardingDuration > 20 ? 50 : 80
-    if (availableGold < minGoldThreshold) return
+    // Spend even tiny amounts of gold - don't hoard
+    const minGoldThreshold = 30;
+    if (availableGold < minGoldThreshold) return;
 
     const candidateUnits = this.config.availableUnitTypes
       .filter(unitType => unitType !== 'hero')
       .map(unitType => ({
         unitType,
         score: this._scoreUnit(unitType, gameContext),
-        cost:  this.game.unitRegistry.get(unitType)?.STATS.cost || 50,
+        cost: this.game.unitRegistry.get(unitType)?.STATS.cost || 50,
       }))
       .filter(unit => unit.cost <= availableGold && unit.score > 0)
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => b.score - a.score);
 
     if (candidateUnits.length > 0) {
-      this.game.spawnUnit('ai', candidateUnits[0].unitType)
+      this.game.spawnUnit('ai', candidateUnits[0].unitType);
     }
   }
 

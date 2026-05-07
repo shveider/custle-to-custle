@@ -171,6 +171,8 @@ export class CombatSystem {
 
     _onKill(attacker, target) {
         const killGold = (target.constructor.cost || 0) * 0.2;
+        console.log('cost', target.constructor.cost)
+        console.log('killGold for', attacker.owner, killGold)
         if (killGold > 0) {
             this.game.addGold(attacker.owner, killGold);
         }

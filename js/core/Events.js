@@ -32,10 +32,6 @@ export const GameEvents = {
    *  Listened to by: HUD (updates gold display) */
   GOLD: 'game:gold',
 
-  /** Gold was spent (card purchase) — carries { amount }.
-   *  Listened to by: HUD (tracks spending history) */
-  SPEND_GOLD: 'game:spendGold',
-
   /** Query current gold amount — listeners should return the gold value.
    *  Listened to by: HUD (returns current gold) */
   GET_GOLD: 'game:getGold',

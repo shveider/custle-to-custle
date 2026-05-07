@@ -79,11 +79,6 @@ export class Game {
         this.events.emit(GameEvents.GOLD, owner, amount);
     }
 
-    spendGold(owner, amount) {
-        const canSpend = this.events.emit(GameEvents.SPEND_GOLD, owner, amount);
-        return canSpend;
-    }
-
     getGold(owner) {
         let gold = 0;
         this.events.emit(GameEvents.GET_GOLD, owner, (value) => { gold = value; });
