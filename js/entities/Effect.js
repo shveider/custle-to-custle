@@ -15,6 +15,7 @@ export class Effect {
         this.size = cfg.size || 10;
         this.color = cfg.color || '';
         this.crit = cfg.crit || false;
+        this.isHeal = cfg.isHeal || false;
         this.targetX = cfg.targetX || 0;
         this.y = cfg.y || 100;
         this.amount = cfg.amount || 0;

@@ -8,6 +8,7 @@ export class Giant extends Unit {
         dmg: 60,
         speed: 0.4,
         range: 60,
+        attackDelay: 1400,
         type: UnitType.MELEE,
         special: { [SpecialAbility.AREA]: 0.5, areaRadius: 60, areaMultiplier: 0.6 },
         resourceType: ResourceType.STAMINA,

@@ -8,6 +8,7 @@ export class Assassin extends Unit {
         dmg: 35,
         speed: 2.2,
         range: 60,
+        attackDelay: 700,
         type: UnitType.MELEE,
         special: { [SpecialAbility.CRITICAL_STRIKE]: 0.3, critMultiplier: 1.8 },
         resourceType: ResourceType.STAMINA,

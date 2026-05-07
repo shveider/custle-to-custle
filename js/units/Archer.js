@@ -8,6 +8,7 @@ export class Archer extends Unit {
         dmg: 20,
         speed: 1.0,
         range: 160,
+        attackDelay: 1000,
         type: UnitType.RANGED,
         special: { [SpecialAbility.PIERCING]: 0.5 },
         resourceType: ResourceType.STAMINA,

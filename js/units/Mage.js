@@ -8,6 +8,7 @@ export class Mage extends Unit {
         dmg: 40,
         speed: 2,
         range: 170,
+        attackDelay: 1200,
         type: UnitType.RANGED,
         special: { [SpecialAbility.CHAIN]: 0.5, chainRange: 120 },
         resourceType: ResourceType.MANA,

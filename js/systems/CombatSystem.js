@@ -155,7 +155,7 @@ export class CombatSystem {
             const actualHeal = Math.min(healAmount, ally.maxHp - ally.curHp);
             ally.curHp = Math.min(ally.maxHp, ally.curHp + healAmount);
             this.fx.spawnImpact(ally.x, 'heal');
-            this.fx.spawnDamageNumber(ally.x, actualHeal, false);
+            this.fx.spawnDamageNumber(ally.x, actualHeal, false, true);
         }
 
         this.game.events.emit(GameEvents.COMBAT_HEAL, healer, allies, healAmount);

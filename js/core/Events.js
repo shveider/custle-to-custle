@@ -122,6 +122,11 @@ export const GameEvents = {
    *  Emitted by: EventPlugin when a timed event triggers.
    *  Listened to by: GameEngine (displays in log overlay) */
   EVENT_LOG: 'event:log',
+
+  /** AI phase changed — carries { phase }.
+   *  Emitted by: AIManager when phase changes.
+   *  Listened to by: GameEngine (updates AI phase label) */
+  AI_PHASE_CHANGE: 'ai:phaseChange',
 };
 
 /**

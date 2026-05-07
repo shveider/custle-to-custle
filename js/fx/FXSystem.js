@@ -138,10 +138,11 @@ export class FXSystem {
      * @param {number} x - World X coordinate.
      * @param {number} amount - Damage value to display.
      * @param {boolean} crit - Whether this is a critical hit (golden, larger text).
+     * @param {boolean} isHeal - Whether this is a heal (green text).
      */
-    spawnDamageNumber(x, amount, crit) {
+    spawnDamageNumber(x, amount, crit, isHeal = false) {
         this.effects.push(new Effect('dmg', x, {
-            amount, crit, life: 800,
+            amount, crit, isHeal, life: 800,
         }));
     }
 

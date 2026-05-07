@@ -84,6 +84,15 @@ export class GameEngine {
             this._applyCastleLevelBonuses(level);
         });
 
+        game.events.on(GameEvents.AI_PHASE_CHANGE, (phase) => {
+            const phaseEl = document.getElementById('ai-phase');
+            if (phaseEl) phaseEl.textContent = phase;
+        });
+
+        // Initialize AI phase display
+        const initPhaseEl = document.getElementById('ai-phase');
+        if (initPhaseEl) initPhaseEl.textContent = 'idle';
+
         this._setupUI(cfg.uiRefs);
     }
 

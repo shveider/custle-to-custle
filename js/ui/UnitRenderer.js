@@ -187,12 +187,17 @@ export class UnitRenderer {
                 el.style.left = fx.x + 'px';
                 el.style.bottom = (100 + t * 38) + 'px';
                 el.style.pointerEvents = 'none';
-                el.style.color = fx.crit ? '#ffd166' : '#fff';
-                el.style.textShadow = fx.crit ? '0 1px 3px rgba(0,0,0,.65),0 0 8px rgba(255,200,0,0.6)' : '0 1px 3px rgba(0,0,0,.65)';
+                if (fx.isHeal) {
+                    el.style.color = '#22c55e';
+                    el.style.textShadow = '0 1px 3px rgba(0,0,0,.65),0 0 8px rgba(34,197,94,0.6)';
+                } else {
+                    el.style.color = fx.crit ? '#ffd166' : '#fff';
+                    el.style.textShadow = fx.crit ? '0 1px 3px rgba(0,0,0,.65),0 0 8px rgba(255,200,0,0.6)' : '0 1px 3px rgba(0,0,0,.65)';
+                }
                 el.style.fontWeight = '700';
-                el.style.fontSize = fx.crit ? '17px' : '14px';
+                el.style.fontSize = (fx.crit && !fx.isHeal) ? '17px' : '14px';
                 el.style.opacity = clamp(1 - t, 0, 1);
-                el.style.letterSpacing = fx.crit ? '1px' : '';
+                el.style.letterSpacing = (fx.crit && !fx.isHeal) ? '1px' : '';
             }
         }
 

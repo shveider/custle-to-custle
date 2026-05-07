@@ -6,8 +6,9 @@ export class Healer extends Unit {
         cost: 150,
         hp: 100,
         dmg: 0, // No enemy damage
-        speed: 0.8,
+        speed: 1.2,
         range: 150,
+        attackDelay: 1500,
         type: UnitType.RANGED,
         special: {
             [SpecialAbility.HEAL_SPLASH]: true,

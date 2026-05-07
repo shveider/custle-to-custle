@@ -90,14 +90,14 @@ const EVENT_REGISTRY = [
     {
         id: 'second_player_bonus',
         trigger: { type: 'time', value: 120 },
-        action: { type: 'gold_bonus', owner: 'player', amount: 1000 },
+        action: { type: 'gold_bonus', owner: 'player', amount: 1500 },
         once: true,
         title: '💰 Supply Drop!',
         message: 'You receive 600 gold reinforcements!',
     },
     {
         id: 'gigantic_wave',
-        trigger: { type: 'time', value: 130 },
+        trigger: { type: 'time', value: 150 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'giant', count: 3 }], free: true },
         once: true,
         title: '⚠️ Giant Wave!',
@@ -105,7 +105,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'big_giant_wave',
-        trigger: { type: 'time', value: 150 },
+        trigger: { type: 'time', value: 180 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'giant', count: 8 }], free: true },
         once: true,
         title: '⚠️ Giant Wave!',
@@ -113,7 +113,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'ai_mage_wave',
-        trigger: { type: 'time', value: 180 },
+        trigger: { type: 'time', value: 200 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'mage', count: 4 }, { name: 'necromancer', count: 20 }], free: true },
         once: true,
         title: '⚠️ Arcane Assault!',
@@ -121,7 +121,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'third_player_gold_bonus',
-        trigger: { type: 'time', value: 200 },
+        trigger: { type: 'time', value: 240 },
         action: { type: 'gold_bonus', owner: 'player', amount: 800 },
         once: true,
         title: '💰 Supply Drop!',
@@ -129,7 +129,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'ai_siege_wave',
-        trigger: { type: 'time', value: 260 },
+        trigger: { type: 'time', value: 300 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'supreme', count: 15 }, { name: 'giant', count: 10 }, { name: 'assassin', count: 30 }], free: true },
         once: true,
         title: '⚠️ Siege Wave!',
@@ -137,8 +137,8 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'last_drop',
-        trigger: { type: 'time', value: 320 },
-        action: { type: 'gold_bonus', owner: 'player', amount: 800 },
+        trigger: { type: 'time', value: 330 },
+        action: { type: 'gold_bonus', owner: 'player', amount: 1500 },
         once: true,
         title: '⚠️ Siege Wave!',
         message: 'A massive combined assault approaches!',
@@ -154,7 +154,7 @@ const EVENT_REGISTRY = [
     {
         id: 'player_desperate_bonus_low_hp',
         trigger: { type: 'castle_hp_below', owner: 'player', value: 0.4 },
-        action: { type: 'gold_bonus', owner: 'player', amount: 600 },
+        action: { type: 'gold_bonus', owner: 'player', amount: 5000 },
         once: true,
         title: '💰 Last Stand!',
         message: 'Your allies send 600 gold as aid!',

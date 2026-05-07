@@ -9,6 +9,7 @@ export class Hero extends Unit {
         dmg: 40,
         speed: 1.0,
         range: 60,
+        attackDelay: 900,
         type: UnitType.HERO,
         special: { [SpecialAbility.UNIQUE]: true },
         resourceType: ResourceType.STAMINA,

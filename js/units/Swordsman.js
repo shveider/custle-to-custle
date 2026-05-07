@@ -8,6 +8,7 @@ export class Swordsman extends Unit {
         dmg: 10,
         speed: 0.8,
         range: 46,
+        attackDelay: 800,
         type: UnitType.MELEE,
         special: { [SpecialAbility.SHIELD_BLOCK]: 0.2 },
         resourceType: ResourceType.STAMINA,

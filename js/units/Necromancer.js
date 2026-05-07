@@ -8,6 +8,7 @@ export class Necromancer extends Unit {
         dmg: 25,
         speed: 0.7,
         range: 200,
+        attackDelay: 1300,
         type: UnitType.RANGED,
         special: { [SpecialAbility.SUMMON]: 0.2, summonOffset: 30 },
         resourceType: ResourceType.MANA,

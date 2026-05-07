@@ -8,6 +8,7 @@ export class Tank extends Unit {
         dmg: 5,
         speed: 0.5,
         range: 48,
+        attackDelay: 1500,
         type: UnitType.MELEE,
         special: { [SpecialAbility.SHIELD_BLOCK]: 0.6 },
         resourceType: ResourceType.STAMINA,
