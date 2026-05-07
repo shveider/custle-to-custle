@@ -145,7 +145,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'ai_desperate_wave_low_hp',
-        trigger: { type: 'castle_hp_below', owner: 'ai', value: 0.25 },
+        trigger: { type: 'castle_hp_below', owner: 'ai', value: 0.4 },
         action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'tank', count: 8 }, { name: 'swordsman', count: 50 }, { name: 'assassin', count: 50 }], free: true },
         once: true,
         title: '⚠️ Desperate Defense!',
@@ -153,7 +153,7 @@ const EVENT_REGISTRY = [
     },
     {
         id: 'player_desperate_bonus_low_hp',
-        trigger: { type: 'castle_hp_below', owner: 'player', value: 0.25 },
+        trigger: { type: 'castle_hp_below', owner: 'player', value: 0.4 },
         action: { type: 'gold_bonus', owner: 'player', amount: 600 },
         once: true,
         title: '💰 Last Stand!',

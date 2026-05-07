@@ -4,8 +4,8 @@ export const GameBalance = {
         aiGoldRate: 12,
     },
     castle: {
-        playerHP: 1000,
-        aiHP: 2000,
+        playerHP: 2000,
+        aiHP: 3000,
         defenseRange: 360,
         defenseDamage: 35,
         defenseAttackDelay: 1300,
