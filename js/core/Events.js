@@ -40,10 +40,6 @@ export const GameEvents = {
    *  Listened to by: UnitSpawnerPlugin (creates the unit), AIManager (tracks spawns) */
   UNIT_SPAWN: 'unit:spawn',
 
-  /** A unit was successfully spawned — carries the Unit instance.
-   *  Emitted by: UnitSpawnerPlugin after DOM/entity creation */
-  UNIT_SPAWNED: 'unit:spawned',
-
   /** A unit initiated an attack — carries { unit, target, damage }.
    *  Listened to by: CombatSystem (resolves the attack) */
   UNIT_ATTACK: 'unit:attack',

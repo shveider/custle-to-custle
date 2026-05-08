@@ -39,7 +39,6 @@ const GAME_CONFIG = {
     playerCastleX: GameBalance.battlefield.playerCastleX,
     aiCastleX: GameBalance.battlefield.width - GameBalance.battlefield.aiCastleXOffset,
     aiCastleXOffset: GameBalance.battlefield.aiCastleXOffset,
-    maxUnitsPerSide: GameBalance.units.maxPerSide,
     castleDefense: {
         defenseRange: GameBalance.castle.defenseRange,
         defenseDamage: GameBalance.castle.defenseDamage,

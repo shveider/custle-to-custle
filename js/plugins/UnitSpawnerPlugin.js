@@ -130,8 +130,6 @@ export class UnitSpawnerPlugin {
         const UnitClass = this.game.unitRegistry.get(defName);
         if (!UnitClass) return;
 
-        if (!options.free && this.game.entities.countAlive(owner) >= (this.game.config.maxUnitsPerSide || 80)) return;
-
         // Queue spawn request for delayed processing
         this._spawnQueue.push({ owner, defName, options, UnitClass });
     }
@@ -166,7 +164,6 @@ export class UnitSpawnerPlugin {
         }
 
         this.game.entities.add(unit);
-        this.game.events.emit(GameEvents.UNIT_SPAWNED, unit);
     }
 
     _spawnHero(owner) {
@@ -207,8 +204,6 @@ export class UnitSpawnerPlugin {
             this._aiHeroCooldown = cd;
             this._aiHeroAvailable = false;
         }
-
-        this.game.events.emit(GameEvents.UNIT_SPAWNED, unit);
     }
 
     _spawnSkeleton(owner, x) {

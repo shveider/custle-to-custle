@@ -35,7 +35,6 @@ export const GameBalance = {
         goldRate: 12,
     },
     units: {
-        maxPerSide: 80,
         unitSize: 48,
     },
     battlefield: {
