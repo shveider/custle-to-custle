@@ -33,6 +33,7 @@ export class AIManager {
     this._goldHoardingDuration = 0
     this._aggressionMultiplier = 1
     this._attackSpawnCooldown = 0
+    this._scoreCache = {}
 
     this._counterUnitMap = this._buildCounterMap()
     this._unitRoleInfo = this._buildUnitRoles()
@@ -131,11 +132,18 @@ export class AIManager {
     this._goldHoardingDuration = 0
     this._aggressionMultiplier = 1
     this._attackSpawnCooldown = 0
+    this._scoreCache = {}
   }
 
   // ─── Main loop ────────────────────────────────────────────────────────────
 
   update(dt) {
+    if (!Object.keys(this._unitScoreData).length) {
+      this._counterUnitMap = this._buildCounterMap()
+      this._unitRoleInfo = this._buildUnitRoles()
+      this._unitScoreData = this._buildUnitScoreData()
+    }
+
     this._elapsedTime += dt
     this._totalGameTime += dt / 1000
     if (this._elapsedTime < this.config.thinkInterval) return
@@ -149,6 +157,8 @@ export class AIManager {
     this._updateDominantUnit()
 
     const ctx = this._computeContext()
+
+    this._buildScoreCache(ctx)
 
     this._trySpawnHero(ctx)
 
@@ -237,6 +247,15 @@ export class AIManager {
       playerTotalPower,
       battlefieldWidth,
     }
+  }
+
+  _buildScoreCache(ctx) {
+    const cache = {}
+    for (const type of this.config.availableUnitTypes) {
+      if (type === 'hero') continue
+      cache[type] = this._scoreUnit(type, ctx)
+    }
+    this._scoreCache = cache
   }
 
   _calculateUnitPower(unit) {
@@ -331,6 +350,10 @@ export class AIManager {
       return Phase.PLANNING;
     }
 
+    if (gameContext.powerRatio > 10) {
+      return Phase.PLANNING;
+    }
+
     // 2. Opportunistic push when already winning the frontline
     const pushThreshold = Math.max(0.25, 0.45 - (this._aggressionMultiplier - 1) * 0.1);
     if (
@@ -363,8 +386,8 @@ export class AIManager {
       .filter(unitType => unitType !== 'hero')
       .map(unitType => ({
         unitType,
-        score: this._scoreUnit(unitType, gameContext),
-        cost: this.game.unitRegistry.get(unitType)?.STATS.cost,
+        score: this._scoreCache[unitType],
+        cost: this._unitScoreData[unitType]?.cost,
       }))
       .filter(unit => unit.cost <= availableGold && unit.score > 0)
       .sort((a, b) => b.score - a.score);
@@ -373,13 +396,13 @@ export class AIManager {
 
     // Build a balanced attack squad: ensure frontline first, then ranged, then flex
     const frontline = scoredUnits.filter(u => {
-      const stats = this.game.unitRegistry.get(u.unitType)?.STATS
-      return stats && (stats.type === UnitType.MELEE || ['tank', 'giant'].includes(u.unitType))
+      const role = this._unitScoreData[u.unitType]?.role
+      return role === UnitType.MELEE || ['tank', 'giant'].includes(u.unitType)
     })
 
     const ranged = scoredUnits.filter(u => {
-      const stats = this.game.unitRegistry.get(u.unitType)?.STATS
-      return stats && stats.type === UnitType.RANGED && !['tank', 'giant'].includes(u.unitType)
+      const role = this._unitScoreData[u.unitType]?.role
+      return role === UnitType.RANGED && !['tank', 'giant'].includes(u.unitType)
     })
 
     let unitToSpawn = null
@@ -410,8 +433,8 @@ export class AIManager {
       .filter(unitType => unitType !== 'hero')
       .map(unitType => ({
         unitType,
-        score: this._scoreUnit(unitType, gameContext),
-        cost: this.game.unitRegistry.get(unitType)?.STATS.cost,
+        score: this._scoreCache[unitType],
+        cost: this._unitScoreData[unitType]?.cost,
       }))
       .filter(unit => unit.score > 0)
       .sort((a, b) => b.score - a.score);

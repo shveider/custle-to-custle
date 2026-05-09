@@ -55,7 +55,7 @@ export const GameEvents = {
 
   /** A unit was killed in combat — carries the dead Unit instance.
    *  Emitted by: CombatSystem, CastleDefenseSystem.
-   *  Listened to by: GameEngine (logs), SFXPlugin (death sound) */
+   *  Listened to by: SFXPlugin (death sound) */
   UNIT_KILLED: 'unit:killed',
 
   /** A unit summoned another unit — carries { summoner, summonedKey }.
@@ -67,7 +67,7 @@ export const GameEvents = {
   HERO_DEPLOY: 'hero:deploy',
 
   /** A hero leveled up — carries { hero, newLevel }.
-   *  Listened to by: GameEngine (logs), HUD (updates UI) */
+   *  Listened to by: HUD (updates UI) */
   HERO_LEVEL_UP: 'hero:levelUp',
 
   /** A hero gained experience — carries { hero, amount }.
@@ -80,23 +80,21 @@ export const GameEvents = {
   HERO_AVAILABLE: 'hero:available',
 
   /** An attack successfully hit a target — carries { attacker, target, damage }.
-   *  Listened to by: GameEngine (logs), SFXPlugin (hit sound), Unit (triggers hit animation) */
+   *  Listened to by: SFXPlugin (hit sound), Unit (triggers hit animation) */
   COMBAT_HIT: 'combat:hit',
 
-  /** An attack hit a castle — carries { castle, damage }.
-   *  Listened to by: GameEngine (logs castle hit) */
+  /** An attack hit a castle — carries { castle, damage }. */
   COMBAT_CASTLE_HIT: 'combat:castleHit',
 
-  /** An attack was blocked — carries { attacker, target }.
-   *  Listened to by: GameEngine (logs block) */
+  /** An attack was blocked — carries { attacker, target }. */
   COMBAT_BLOCKED: 'combat:blocked',
 
   /** An attack scored a critical hit — carries { attacker, target, damage }.
-   *  Listened to by: GameEngine (logs crit), SFXPlugin (crit sound) */
+   *  Listened to by: SFXPlugin (crit sound) */
   COMBAT_CRIT: 'combat:crit',
 
   /** A heal was applied to allies — carries { healer, targets, amount }.
-   *  Listened to by: GameEngine (logs heal), FXSystem (heal effects) */
+   *  Listened to by: FXSystem (heal effects) */
   COMBAT_HEAL: 'combat:heal',
 
   /** A castle took damage — carries { castle, damage }.
@@ -104,17 +102,12 @@ export const GameEvents = {
   CASTLE_DAMAGE: 'castle:damage',
 
   /** Player castle leveled up — carries { newLevel, cost }.
-   *  Listened to by: GameEngine (logs), HUD (updates UI), UnitSpawnerPlugin (applies stat boosts) */
+   *  Listened to by: HUD (updates UI), UnitSpawnerPlugin (applies stat boosts) */
   CASTLE_LEVEL_UP: 'castle:levelUp',
 
   /** A castle defense system fired at an enemy unit.
    *  Emitted by: CastleDefenseSystem */
   CASTLE_DEFENSE: 'castle:defense',
-
-  /** An event log message — carries { title, message }.
-   *  Emitted by: EventPlugin when a timed event triggers.
-   *  Listened to by: GameEngine (displays in log overlay) */
-  EVENT_LOG: 'event:log',
 
   /** AI phase changed — carries { phase }.
    *  Emitted by: AIManager when phase changes.

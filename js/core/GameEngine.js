@@ -6,7 +6,6 @@ import { GameBalance } from './GameBalance.js';
 export class GameEngine {
     constructor(game, engineConfig) {
         this.game = game;
-        this._logEl = engineConfig.logEl;
         this._unitClasses = engineConfig.unitClasses;
     }
 
@@ -52,36 +51,9 @@ export class GameEngine {
             target.triggerAnim('hit', 150, this.game.time * 1000);
         });
 
-        game.events.on(GameEvents.EVENT_LOG, (msg) => this._log(msg));
-
-        game.events.on(GameEvents.UNIT_KILLED, (attacker, target) => {
-            this._log((attacker.isCastle ? 'Castle' : attacker.owner) + ' killed ' + target.defName);
-        });
-
-        game.events.on(GameEvents.COMBAT_CASTLE_HIT, (attacker, castleOwner, dmg) => {
-            this._log((attacker.owner === 'player' ? '' : 'AI ') + attacker.defName + ' bombarded castle for ' + dmg);
-        });
-
-        game.events.on(GameEvents.COMBAT_BLOCKED, (target) => {
-            this._log(target.owner + ' ' + target.defName + ' blocked the attack!');
-        });
-
-        game.events.on(GameEvents.COMBAT_CRIT, (attacker, target, dmg) => {
-            this._log(attacker.defName + ' critical strike for ' + Math.round(dmg) + '!');
-        });
-
-        game.events.on(GameEvents.COMBAT_HEAL, (healer, targets, amount) => {
-            this._log(healer.owner + ' healer restored ' + amount + ' HP to ' + targets.length + ' ally(s)');
-        });
-
         game.events.on(GameEvents.END, (winner) => this._showGameOver(winner));
 
-        game.events.on(GameEvents.HERO_LEVEL_UP, (level) => {
-            this._log('Hero leveled up to ' + level + '!');
-        });
-
         game.events.on(GameEvents.CASTLE_LEVEL_UP, (level) => {
-            this._log('Castle upgraded to level ' + level + '!');
             this._applyCastleLevelBonuses(level);
         });
 
@@ -295,19 +267,6 @@ export class GameEngine {
         requestAnimationFrame(anim);
     }
 
-    _log(msg) {
-        if (!this._logEl) return;
-        const p = document.createElement('div');
-        p.className = 'log-entry';
-        if (/died|defeat|fell|killed/i.test(msg)) p.classList.add('log-kill');
-        else if (/victory|destroyed|leveled up/i.test(msg)) p.classList.add('log-level');
-        else if (/castle|bombarded/i.test(msg)) p.classList.add('log-castle');
-        else if (/^player|^your/i.test(msg)) p.classList.add('log-player');
-        p.textContent = msg;
-        this._logEl.prepend(p);
-        if (this._logEl.childElementCount > 200) this._logEl.removeChild(this._logEl.lastChild);
-    }
-
     _showGameOver(winner) {
         const overlay = document.getElementById('game-over-overlay');
         const title = document.getElementById('game-over-title');
@@ -317,12 +276,10 @@ export class GameEngine {
             title.textContent = 'Defeat!';
             title.className = 'defeat';
             msg.textContent = 'Your castle has fallen. Try again!';
-            this._log('Defeat! Your castle fell.');
         } else {
             title.textContent = 'Victory!';
             title.className = 'victory';
             msg.textContent = 'The enemy castle lies in ruin!';
-            this._log('Victory! Enemy castle destroyed.');
         }
 
         if (overlay) overlay.style.display = 'flex';

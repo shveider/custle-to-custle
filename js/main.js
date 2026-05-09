@@ -281,7 +281,6 @@ function startGame() {
     game.plugins.register(new UnitSpawnerPlugin());
 
     const engine = new GameEngine(game, {
-        logEl: document.getElementById('log'),
         unitClasses: UNIT_CLASSES,
     });
 

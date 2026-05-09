@@ -415,21 +415,6 @@ header h1 {
     border-radius: 4px; transition: width 0.3s ease;
 }
 
-.log {
-    flex: 1; max-width: 340px; height: 100px;
-    background: rgba(0,0,0,0.32);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 10px; padding: 8px 10px;
-    overflow-y: auto; font-size: 12px; line-height: 1.55;
-    color: #70809a;
-}
-
-.log-entry { padding: 1px 0; }
-.log-kill { color: #f87171; }
-.log-player { color: #86efac; }
-.log-level { color: #fde68a; font-weight: 600; }
-.log-castle { color: #f97316; }
-
 button.small {
     background: rgba(245,158,11,0.12);
     border: 1px solid rgba(245,158,11,0.28);

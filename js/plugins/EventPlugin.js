@@ -46,8 +46,6 @@ export class EventPlugin {
     }
 
     _execute(evt) {
-        if (evt.title) this.game.events.emit(GameEvents.EVENT_LOG, evt.title);
-        if (evt.message) this.game.events.emit(GameEvents.EVENT_LOG, evt.message);
         if (evt.title && evt.message) this.banner.show(evt.title, evt.message);
 
         const action = evt.action;
