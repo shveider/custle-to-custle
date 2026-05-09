@@ -1,5 +1,6 @@
 "use strict";
 import { GameEvents } from '../core/Events.js';
+import { GameBalance } from '../core/GameBalance.js';
 
 export class CardDeck {
     constructor(game, hud) {
@@ -8,6 +9,12 @@ export class CardDeck {
         this._cards = new Map();
         this._setupCards();
         this._setupKeys();
+
+        const initialLevel = this.game._hud ? this.game._hud.castleLevel : 1;
+        this._updateTooltips(initialLevel);
+
+        this.game.events.on(GameEvents.CASTLE_LEVEL_UP, (level) => this._updateTooltips(level));
+        this.game.events.on(GameEvents.RESTART, () => this._updateTooltips(1));
     }
 
     _setupCards() {
@@ -18,56 +25,25 @@ export class CardDeck {
             this._cards.set(unitKey, c);
 
             c.addEventListener('click', () => this._spawn(unitKey));
-            c.addEventListener('mouseenter', (e) => this._showTooltip(e, unitKey));
-            c.addEventListener('mouseleave', () => this._hideTooltip());
         });
     }
 
-    _showTooltip(e, unitKey) {
-        if (unitKey === 'hero') return;
+    _updateTooltips(castleLevel) {
+        const cl = GameBalance.castleLevels;
+        const hpBoost = 1 + (castleLevel - 1) * cl.unitHpBoostPerLevel;
+        const dmgBoost = 1 + (castleLevel - 1) * cl.unitDmgBoostPerLevel;
 
-        const UnitClass = this.game.unitRegistry.get(unitKey);
-        if (!UnitClass) return;
+        for (const [key, card] of this._cards) {
+            if (key === 'hero') continue;
+            const UnitClass = this.game.unitRegistry.get(key);
+            if (!UnitClass) continue;
+            const s = UnitClass.STATS;
 
-        const s = UnitClass.STATS;
-        const desc = s?.description || '';
-        const abilityDesc = s?.abilityDesc || '';
-        const abilityIcon = s?.abilityIcon || '⚡';
-
-        let el = document.getElementById('card-tooltip');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'card-tooltip';
-            document.body.appendChild(el);
+            const hpEl = card.querySelector('.tooltip-hp');
+            const dmgEl = card.querySelector('.tooltip-dmg');
+            if (hpEl) hpEl.textContent = Math.floor(s.hp * hpBoost);
+            if (dmgEl) dmgEl.textContent = Math.floor(s.dmg * dmgBoost);
         }
-
-        el.innerHTML = `
-            <div class="tooltip-name">${s?.displayName || UnitClass.name}</div>
-            <div class="tooltip-desc">${desc}</div>
-            <div class="tooltip-stats">
-                <span>HP: ${s.hp}</span>
-                <span>DMG: ${s.dmg}</span>
-                <span>SPD: ${s.speed}</span>
-                <span>RNG: ${s.range}</span>
-                <span>Cost: ${s.cost}</span>
-            </div>
-            <div class="tooltip-ability">${abilityIcon} ${abilityDesc}</div>
-        `;
-        el.classList.add('visible');
-
-        const rect = e.target.getBoundingClientRect();
-        const tooltipWidth = 240;
-        let left = rect.left + rect.width / 2;
-        if (left - tooltipWidth / 2 < 8) left = tooltipWidth / 2 + 8;
-        if (left + tooltipWidth / 2 > window.innerWidth - 8) left = window.innerWidth - tooltipWidth / 2 - 8;
-        el.style.left = left + 'px';
-        el.style.top = rect.top - 12 + 'px';
-        el.style.transform = 'translate(-50%, -100%)';
-    }
-
-    _hideTooltip() {
-        const el = document.getElementById('card-tooltip');
-        if (el) el.classList.remove('visible');
     }
 
     _setupKeys() {
