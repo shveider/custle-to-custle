@@ -12,14 +12,13 @@ const THREAT_WEIGHTS = {
 
 export class AIManager {
   constructor(game, config = {}) {
-    if (!config.thinkInterval || !config.minSpawnScore) {
-      throw new Error('AIManager requires thinkInterval and minSpawnScore config')
+    if (!config.thinkInterval) {
+      throw new Error('AIManager requires thinkInterval config')
     }
 
     this.game = game
     this.config = {
       thinkInterval: config.thinkInterval,
-      minSpawnScore: config.minSpawnScore,
       availableUnitTypes: ['swordsman', 'archer', 'mage', 'supreme', 'hero', 'tank', 'assassin', 'necromancer', 'giant'],
       goldRate: config.goldRate,
     }
@@ -37,6 +36,7 @@ export class AIManager {
 
     this._counterUnitMap = this._buildCounterMap()
     this._unitRoleInfo = this._buildUnitRoles()
+    this._unitScoreData = this._buildUnitScoreData()
 
     this._setupListeners()
   }
@@ -76,6 +76,29 @@ export class AIManager {
       }
     }
     return unitRoles
+  }
+
+  _buildUnitScoreData() {
+    const data = {}
+    const reg = this.game.unitRegistry
+    if (!reg) return data
+
+    for (const key of reg.keys()) {
+      const UnitClass = reg.get(key)
+      if (!UnitClass || !UnitClass.STATS) continue
+      const stats = UnitClass.STATS
+      const attackSpeed = 1000 / stats.attackDelay
+      data[key] = {
+        dps: stats.dmg * attackSpeed,
+        effectiveHP: stats.hp * (stats.speed < 0.7 ? 1.2 : 1.0),
+        cost: stats.cost,
+        rangeBonus: (stats.range / 100) * 0.1,
+        role: this._unitRoleInfo[key]?.role,
+        tier: this._unitRoleInfo[key]?.tier,
+        counteredBy: Object.entries(this._counterUnitMap).find(([_, v]) => v === key)?.[0],
+      }
+    }
+    return data
   }
 
   _setupListeners() {
@@ -130,9 +153,11 @@ export class AIManager {
     this._trySpawnHero(ctx)
 
     const phase = this._decidePhase(ctx, gold)
+
     if (phase !== this._currentPhase) {
       this.game.events.emit(GameEvents.AI_PHASE_CHANGE, phase)
     }
+
     this._currentPhase = phase
 
     switch (phase) {
@@ -161,20 +186,18 @@ export class AIManager {
 
     for (const unit of playerUnits) {
       if (unit.x > nearestEnemyX) nearestEnemyX = unit.x
-      const stats = this.game.unitRegistry.get(unit.defName)?.STATS
-      if (stats) playerTotalPower += this._calculateUnitPower(stats)
+      playerTotalPower += this._calculateUnitPower(unit)
     }
 
     for (const unit of aiUnits) {
       if (unit.x < nearestAiUnitX) nearestAiUnitX = unit.x
-      const stats = this.game.unitRegistry.get(unit.defName)?.STATS
-      if (stats) aiTotalPower += this._calculateUnitPower(stats)
+      aiTotalPower += this._calculateUnitPower(unit)
 
       if (unit.unitType === UnitType.MELEE || ['hero', 'tank', 'giant'].includes(unit.defName)) {
-        aiHasFrontline = true
+        aiHasFrontline = true // TODO: is is helpful?
       }
       if (unit.unitType === UnitType.RANGED || ['mage', 'archer'].includes(unit.defName)) {
-        aiHasRangedUnits = true
+        aiHasRangedUnits = true // TODO: is is helpful?
       }
       if (unit.defName === 'hero') aiHeroIsAlive = true
     }
@@ -187,9 +210,14 @@ export class AIManager {
       : aiTotalPower > 0 ? 2 : 1
 
     const aiCastleHpPercent = aiCastle ? aiCastle.hpPercent : 1
+
     let threatLevel = 'low'
-    if (aiCastleHpPercent < 0.4 || nearestEnemyX > battlefieldWidth - 300)       threatLevel = 'high'
-    else if (aiCastleHpPercent < 0.65 || nearestEnemyX > battlefieldWidth - 500)  threatLevel = 'medium'
+
+    if (aiCastleHpPercent < 0.4 || nearestEnemyX > battlefieldWidth - 300) {
+      threatLevel = 'high'
+    } else if (aiCastleHpPercent < 0.65 || nearestEnemyX > battlefieldWidth - 500) {
+      threatLevel = 'medium'
+    }
 
     return {
       aiUnitCount:        entities.countAlive('ai'),
@@ -211,9 +239,9 @@ export class AIManager {
     }
   }
 
-  _calculateUnitPower(stats) {
-    const attackSpeed = 1000 / (stats.attackDelay || 800)
-    return stats.dmg * attackSpeed * 0.5 + stats.hp * 0.3
+  _calculateUnitPower(unit) {
+    const attackSpeed = 1000 / unit.attackDelay
+    return unit.dmg * attackSpeed * 0.2 + unit.curHp * 0.05 + unit.speed * 0.05 + unit.range * 0.05
   }
 
   _updateDominantUnit() {
@@ -236,42 +264,40 @@ export class AIManager {
   // ─── Scoring ──────────────────────────────────────────────────────────────
 
   _scoreUnit(unitName, gameContext) {
-    const UnitClass = this.game.unitRegistry.get(unitName)
-    if (!UnitClass) return -10
+    const base = this._unitScoreData[unitName]
+    if (!base) return -10
 
-    const unitStats    = UnitClass.STATS
-    const attackSpeed  = 1000 / (unitStats.attackDelay || 800)
-    const damagePerSecond = unitStats.dmg * attackSpeed
-    const effectiveHP = unitStats.hp * (unitStats.speed < 0.7 ? 1.2 : 1.0)
-    const weights     = THREAT_WEIGHTS[gameContext.threatLevel]
+    const weights = THREAT_WEIGHTS[gameContext.threatLevel]
 
     let score = (
-      weights.dps * damagePerSecond +
-      weights.ehp * effectiveHP -
-      weights.eff * unitStats.cost
-    ) / Math.max(unitStats.cost, 1) * 10
+      weights.dps * base.dps +
+      weights.ehp * base.effectiveHP -
+      weights.eff * base.cost
+    ) / Math.max(base.cost, 1) * 10
 
-    score += (unitStats.range / 100) * 0.1
+    score += base.rangeBonus
 
     if (this._mostFrequentlySpawnedUnit && this._counterUnitMap[this._mostFrequentlySpawnedUnit] === unitName) {
       score += 2.5
     }
 
     let counterBonus = 0
+
     for (const [enemyType, count] of Object.entries(this._playerUnitCounts)) {
       if (count > 0 && this._counterUnitMap[enemyType] === unitName) {
         counterBonus += 0.6 * Math.min(count, 3)
       }
     }
+
     score += counterBonus
 
-    const myRole = this._unitRoleInfo[unitName]?.role
-    if (myRole === UnitType.MELEE && !gameContext.aiHasFrontline) score += 2.0
-    if (myRole === UnitType.RANGED && !gameContext.aiHasRangedUnits)   score += 1.2
+    if (base.role === UnitType.MELEE && !gameContext.aiHasFrontline) score += 2.0
+    if (base.role === UnitType.RANGED && !gameContext.aiHasRangedUnits)   score += 1.2
 
     if (gameContext.enemyNearCastle) {
-      if (unitName === 'tank' || unitName === 'giant') score += 3.5
-      else if (unitName === 'swordsman')               score += 1.5
+      if (unitName === 'tank' || unitName === 'giant') score += 3
+      else if (unitName === 'swordsman')               score += 1
+      else if (unitName === 'supreme') score += 1.5
     }
 
     if (gameContext.aiCastleHpPct < 0.35) {
@@ -280,16 +306,15 @@ export class AIManager {
       if (unitName === 'supreme') score += 1.5
     }
 
-    if (gameContext.powerRatio > 1.5 && this._unitRoleInfo[unitName]?.tier === 3) score += 1.5
+    if (gameContext.powerRatio > 1.5 && base.tier === 3) score += 1.5
 
-    score += this._aggressionMultiplier * (this._unitRoleInfo[unitName]?.tier || 1) * 0.3
+    score += this._aggressionMultiplier * (base.tier || 1) * 0.3
 
     if (unitName === 'hero') {
       score = gameContext.aiHeroIsAlive ? -15 : Math.min(this._totalGameTime * 0.05, 4)
     }
 
-    const counterToThis = Object.entries(this._counterUnitMap).find(([_, v]) => v === unitName)?.[0]
-    if (counterToThis && (this._playerUnitCounts[counterToThis] || 0) >= 2) {
+    if (base.counteredBy && (this._playerUnitCounts[base.counteredBy] || 0) >= 2) {
       score -= 1.0
     }
 
@@ -331,6 +356,8 @@ export class AIManager {
   _executeAttack(gameContext, availableGold) {
     this._attackSpawnCooldown -= this.config.thinkInterval
     if (this._attackSpawnCooldown > 0) return
+
+    if (availableGold <= 150) return
 
     const scoredUnits = this.config.availableUnitTypes
       .filter(unitType => unitType !== 'hero')
@@ -384,7 +411,7 @@ export class AIManager {
       .map(unitType => ({
         unitType,
         score: this._scoreUnit(unitType, gameContext),
-        cost: this.game.unitRegistry.get(unitType)?.STATS.cost || 50,
+        cost: this.game.unitRegistry.get(unitType)?.STATS.cost,
       }))
       .filter(unit => unit.score > 0)
       .sort((a, b) => b.score - a.score);
@@ -411,19 +438,13 @@ export class AIManager {
 
     const heroCost = HeroClass.STATS.cost
 
-    const heroScore = this._scoreUnit('hero', gameContext)
+    this.game.spawnUnit('ai', 'hero')
 
-    if (heroScore > this.config.minSpawnScore) {
-      this.game.spawnUnit('ai', 'hero')
+    if (heroCost !== 0) {
+      this.game.addGold('ai', -heroCost)
 
-      if (heroCost !== 0) {
-        this.game.addGold('ai', -heroCost)
-
-      }
-
-      return true
     }
 
-    return false
+    return true
   }
 }

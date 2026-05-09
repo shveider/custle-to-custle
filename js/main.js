@@ -119,6 +119,14 @@ const EVENT_REGISTRY = [
         message: 'Enemy swordsman incoming!',
     },
     {
+        id: 'swordsmans_ai_wave',
+        trigger: { type: 'time', value: 40 },
+        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'swordsman', count: 20 }], free: true },
+        once: true,
+        title: '⚠️ Shadow Rush!',
+        message: 'Enemy swordsman incoming!',
+    },
+    {
         id: 'first_player_bonus',
         trigger: { type: 'time', value: 50 },
         action: { type: 'gold_bonus', owner: 'player', amount: 1000 },
@@ -215,7 +223,15 @@ const EVENT_REGISTRY = [
         action: { type: 'gold_bonus', owner: 'player', amount: 5000 },
         once: true,
         title: '💰 Last Stand!',
-        message: 'Your allies send 600 gold as aid!',
+        message: 'Your allies send 5000 gold as aid!',
+    },
+    {
+        id: 'ai_desperate_bonus_low_hp',
+        trigger: { type: 'castle_hp_below', owner: 'ai', value: 0.6 },
+        action: { type: 'gold_bonus', owner: 'ai', amount: 5000 },
+        once: true,
+        title: '💰 Last AI Stand!',
+        message: 'AI allies send 5000 gold as aid!',
     },
 ];
 
@@ -234,7 +250,6 @@ function startGame() {
     const defense = new CastleDefenseSystem(game, game.fx);
     const ai = new AIManager(game, {
         thinkInterval: GameBalance.ai.thinkInterval,
-        minSpawnScore: GameBalance.ai.minSpawnScore,
         goldRate: GameBalance.economy.aiGoldRate,
     });
 

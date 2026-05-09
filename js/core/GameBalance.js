@@ -60,7 +60,6 @@ export const GameBalance = {
         fixedDt: 1000 / 60,
     },
     ai: {
-        thinkInterval: 400,
-        minSpawnScore: 0.3,
+        thinkInterval: 1500,
     },
 };

@@ -16,6 +16,10 @@ export class EntityManager {
     }
 
     add(entity) {
+        if (this._entities.has(entity.id)) {
+            console.warn(`EntityManager.add: duplicate ID ${entity.id} (existing=${this._entities.get(entity.id).constructor.name}, new=${entity.constructor.name})`);
+        }
+
         this._entities.set(entity.id, entity);
 
         if (entity.isUnit) {
