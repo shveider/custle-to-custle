@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Global event names emitted on `game.events` (the shared EventBus).
  * These events coordinate communication between systems, plugins, and UI components.

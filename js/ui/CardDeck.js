@@ -1,11 +1,10 @@
+"use strict";
 import { GameEvents } from '../core/Events.js';
 
 export class CardDeck {
-    constructor(game, hud, heroLevelFn, assetRegistry) {
+    constructor(game, hud) {
         this.game = game;
         this.hud = hud;
-        this._heroLevel = heroLevelFn || (() => 1);
-        this._assetRegistry = assetRegistry;
         this._cards = new Map();
         this._setupCards();
         this._setupKeys();

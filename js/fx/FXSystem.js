@@ -1,3 +1,4 @@
+"use strict";
 import { Projectile } from '../entities/Projectile.js';
 import { Effect } from '../entities/Effect.js';
 import { GameEvents } from '../core/Events.js';

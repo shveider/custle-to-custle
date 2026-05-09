@@ -1,3 +1,4 @@
+"use strict";
 import { Unit } from '../entities/Unit.js';
 import { UnitType, ResourceType, SpecialAbility } from '../core/UnitTypes.js';
 import { GameBalance } from '../core/GameBalance.js';

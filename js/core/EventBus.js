@@ -1,3 +1,4 @@
+"use strict";
 export class EventBus {
     constructor() {
         this._listeners = new Map();

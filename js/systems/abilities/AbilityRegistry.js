@@ -1,3 +1,4 @@
+"use strict";
 import { GameEvents } from '../../core/Events.js';
 import { SpecialAbility } from '../../core/UnitTypes.js';
 

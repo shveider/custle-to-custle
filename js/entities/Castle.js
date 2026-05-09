@@ -1,3 +1,4 @@
+"use strict";
 import { Entity } from './Entity.js';
 
 export class Castle extends Entity {

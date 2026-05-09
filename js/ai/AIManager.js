@@ -1,3 +1,4 @@
+"use strict";
 import { GameEvents } from '../core/Events.js'
 import { UnitType } from '../core/UnitTypes.js'
 
@@ -299,7 +300,11 @@ export class AIManager {
 
   _decidePhase(gameContext, availableGold) {
     // 1. Defence always wins
-    if (gameContext.enemyNearCastle || gameContext.aiCastleHpPct < 0.25) return Phase.DEFENDING;
+    if (gameContext.enemyNearCastle) return Phase.DEFENDING;
+
+    if (availableGold < 400) {
+      return Phase.PLANNING;
+    }
 
     // 2. Opportunistic push when already winning the frontline
     const pushThreshold = Math.max(0.25, 0.45 - (this._aggressionMultiplier - 1) * 0.1);
@@ -344,13 +349,14 @@ export class AIManager {
       const stats = this.game.unitRegistry.get(u.unitType)?.STATS
       return stats && (stats.type === UnitType.MELEE || ['tank', 'giant'].includes(u.unitType))
     })
+
     const ranged = scoredUnits.filter(u => {
       const stats = this.game.unitRegistry.get(u.unitType)?.STATS
       return stats && stats.type === UnitType.RANGED && !['tank', 'giant'].includes(u.unitType)
     })
-    const flex = scoredUnits.filter(u => !frontline.includes(u) && !ranged.includes(u))
 
     let unitToSpawn = null
+
     if (!gameContext.aiHasFrontline && frontline.length > 0) {
       unitToSpawn = frontline[0]
     } else if (!gameContext.aiHasRangedUnits && ranged.length > 0) {
@@ -409,7 +415,12 @@ export class AIManager {
 
     if (heroScore > this.config.minSpawnScore) {
       this.game.spawnUnit('ai', 'hero')
-      this.game.addGold('ai', -heroCost)
+
+      if (heroCost !== 0) {
+        this.game.addGold('ai', -heroCost)
+
+      }
+
       return true
     }
 

@@ -1,3 +1,4 @@
+"use strict";
 import { EventBus } from './EventBus.js';
 import { EntityManager } from './EntityManager.js';
 import { PluginManager } from './PluginManager.js';
@@ -91,16 +92,6 @@ export class Game {
 
     damageCastle(owner, amount) {
         this.events.emit(GameEvents.CASTLE_DAMAGE, owner, amount);
-    }
-
-    getCastleHp(owner) {
-        const castle = this.entities.getCastle(owner);
-        return castle ? castle.curHp : 0;
-    }
-
-    getMaxCastleHp(owner) {
-        const castle = this.entities.getCastle(owner);
-        return castle ? castle.maxHp : 0;
     }
 
     _loop(now) {

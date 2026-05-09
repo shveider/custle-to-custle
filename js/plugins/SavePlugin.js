@@ -1,3 +1,4 @@
+"use strict";
 export class SavePlugin {
     constructor(name = 'save') {
         this.name = name;

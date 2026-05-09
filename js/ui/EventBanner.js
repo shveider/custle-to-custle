@@ -1,3 +1,4 @@
+"use strict";
 export class EventBanner {
     constructor() {
         this._active = null;

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * A projectile entity that travels in a straight line until
  * its max distance is reached or it leaves the battlefield.

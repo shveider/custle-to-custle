@@ -1,3 +1,4 @@
+"use strict";
 import { GameEvents, EntityEvents } from '../core/Events.js';
 import { GameBalance } from '../core/GameBalance.js';
 

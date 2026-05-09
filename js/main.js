@@ -1,3 +1,4 @@
+"use strict";
 import { Game } from './core/Game.js';
 import { UnitRegistry } from './core/UnitRegistry.js';
 import { GameBalance } from './core/GameBalance.js';
@@ -60,6 +61,53 @@ const UNIT_CLASSES = new Map([
     ['skeleton', Skeleton],
     ['healer', Healer],
 ]);
+
+class UiRefs {
+    constructor() {
+        /** @type {HTMLElement|null} */
+        this.goldEl = document.getElementById('gold');
+        /** @type {HTMLElement|null} */
+        this.timeEl = document.getElementById('time');
+        /** @type {HTMLElement|null} */
+        this.playerHpBar = document.getElementById('player-hp');
+        /** @type {HTMLElement|null} */
+        this.aiHpBar = document.getElementById('ai-hp');
+        /** @type {HTMLElement|null} */
+        this.playerHpText = document.getElementById('player-hp-text');
+        /** @type {HTMLElement|null} */
+        this.aiHpText = document.getElementById('ai-hp-text');
+        /** @type {HTMLElement|null} */
+        this.aiGoldInfo = document.getElementById('ai-gold');
+        /** @type {HTMLElement|null} */
+        this.heroLevelEl = document.getElementById('hero-level');
+        /** @type {HTMLElement|null} */
+        this.heroExpText = document.getElementById('hero-exp-text');
+        /** @type {HTMLElement|null} */
+        this.heroXpBar = document.getElementById('hero-xp-bar');
+        /** @type {HTMLElement|null} */
+        this.heroHpStat = document.getElementById('hero-hp-stat');
+        /** @type {HTMLElement|null} */
+        this.heroDmgStat = document.getElementById('hero-dmg-stat');
+        /** @type {HTMLElement|null} */
+        this.heroSpdStat = document.getElementById('hero-spd-stat');
+        /** @type {HTMLElement|null} */
+        this.castlePlayer = document.getElementById('castle-player');
+        /** @type {HTMLElement|null} */
+        this.castleAi = document.getElementById('castle-ai');
+        /** @type {HTMLElement|null} */
+        this.castleLevelEl = document.getElementById('castle-level');
+        /** @type {HTMLButtonElement|null} */
+        this.castleUpgradeBtn = document.getElementById('castle-upgrade-btn');
+        /** @type {HTMLElement|null} */
+        this.btnPause = document.getElementById('btn-pause');
+        /** @type {HTMLElement|null} */
+        this.btnSpeed = document.getElementById('btn-speed');
+        /** @type {HTMLElement|null} */
+        this.btnReset = document.getElementById('btn-reset');
+        /** @type {HTMLInputElement|null} */
+        this.volumeSlider = document.getElementById('volume-slider');
+    }
+}
 
 const EVENT_REGISTRY = [
     {
@@ -145,7 +193,18 @@ const EVENT_REGISTRY = [
     {
         id: 'ai_desperate_wave_low_hp',
         trigger: { type: 'castle_hp_below', owner: 'ai', value: 0.4 },
-        action: { type: 'spawn_wave', owner: 'ai', units: [{ name: 'tank', count: 8 }, { name: 'swordsman', count: 50 }, { name: 'assassin', count: 50 }], free: true },
+        action: {
+            type: 'spawn_wave',
+            owner: 'ai',
+            units: [
+              { name: 'tank', count: 10 },
+              { name: 'swordsman', count: 50 },
+              { name: 'giant', count: 10 },
+              { name: 'assassin', count: 50 },
+              { name: 'supreme', count: 5 },
+            ],
+            free: true
+        },
         once: true,
         title: '⚠️ Desperate Defense!',
         message: 'The enemy throws everything at you!',
@@ -167,48 +226,25 @@ function startGame() {
     const assetRegistry = new UnitAssetRegistry();
     assetRegistry.setUnitRegistry(game.unitRegistry);
 
-    const fx = new FXSystem(game);
-    game.fx = fx;
-    const combat = new CombatSystem(game, fx, {
+    game.fx = new FXSystem(game);
+    const combat = new CombatSystem(game, game.fx, {
         playerCastleX: GAME_CONFIG.playerCastleX,
         aiCastleX: GAME_CONFIG.battlefieldWidth - GAME_CONFIG.aiCastleXOffset,
     });
-    const defense = new CastleDefenseSystem(game, fx);
+    const defense = new CastleDefenseSystem(game, game.fx);
     const ai = new AIManager(game, {
         thinkInterval: GameBalance.ai.thinkInterval,
         minSpawnScore: GameBalance.ai.minSpawnScore,
         goldRate: GameBalance.economy.aiGoldRate,
     });
 
-    const uiRefs = {
-        goldEl: document.getElementById('gold'),
-        timeEl: document.getElementById('time'),
-        playerHpBar: document.getElementById('player-hp'),
-        aiHpBar: document.getElementById('ai-hp'),
-        playerHpText: document.getElementById('player-hp-text'),
-        aiHpText: document.getElementById('ai-hp-text'),
-        aiGoldInfo: document.getElementById('ai-gold'),
-        heroLevelEl: document.getElementById('hero-level'),
-        heroExpText: document.getElementById('hero-exp-text'),
-        heroXpBar: document.getElementById('hero-xp-bar'),
-        heroHpStat: document.getElementById('hero-hp-stat'),
-        heroDmgStat: document.getElementById('hero-dmg-stat'),
-        heroSpdStat: document.getElementById('hero-spd-stat'),
-        castlePlayer: document.getElementById('castle-player'),
-        castleAi: document.getElementById('castle-ai'),
-        castleLevelEl: document.getElementById('castle-level'),
-        castleUpgradeBtn: document.getElementById('castle-upgrade-btn'),
-        btnPause: document.getElementById('btn-pause'),
-        btnSpeed: document.getElementById('btn-speed'),
-        btnReset: document.getElementById('btn-reset'),
-        volumeSlider: document.getElementById('volume-slider'),
-    };
+    const uiRefs = new UiRefs();
 
     const hud = new HUD(game, uiRefs);
     game._hud = hud;
     const renderer = new CanvasRenderer(game, document.getElementById('game-canvas'), assetRegistry);
     const roster = new UnitRoster(game, assetRegistry);
-    const cards = new CardDeck(game, hud, () => hud._heroLevel, assetRegistry);
+    const cards = new CardDeck(game, hud);
 
     game.config = {
         ...game.config,
@@ -216,7 +252,7 @@ function startGame() {
         combatSystem: combat,
         castleDefenseSystem: defense,
         aiManager: ai,
-        fxSystem: fx,
+        fxSystem: game.fx,
         hud,
         unitRenderer: renderer,
         unitRoster: roster,

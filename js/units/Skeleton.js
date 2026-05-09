@@ -1,3 +1,4 @@
+"use strict";
 import { Unit } from '../entities/Unit.js';
 import { UnitType, ResourceType } from '../core/UnitTypes.js';
 

@@ -1,3 +1,4 @@
+"use strict";
 import { GameEvents } from '../core/Events.js';
 
 const GROUND_Y = 380; // Match CanvasRenderer.GROUND_Y

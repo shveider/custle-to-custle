@@ -1,3 +1,4 @@
+"use strict";
 export class UnitRegistry {
     constructor() {
         this._registry = new Map();
@@ -17,13 +18,5 @@ export class UnitRegistry {
 
     keys() {
         return Array.from(this._registry.keys());
-    }
-
-    getAll() {
-        return new Map(this._registry);
-    }
-
-    clear() {
-        this._registry.clear();
     }
 }

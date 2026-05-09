@@ -1,38 +1,74 @@
+"use strict";
+
 const HP_COLORS = ['#ef4444', '#f59e0b', '#f59e0b', '#22c55e'];
+
 import { GameEvents } from '../core/Events.js';
 import { Hero } from '../units/Hero.js';
 import { GameBalance } from '../core/GameBalance.js';
 
+/**
+ * @param {number} pct
+ * @returns {string}
+ */
 function hpColor(pct) {
     return pct > 0.5 ? HP_COLORS[3] : pct > 0.25 ? HP_COLORS[2] : pct > 0.1 ? HP_COLORS[1] : HP_COLORS[0];
 }
 
+/**
+ * @param {number} v
+ * @param {number} a
+ * @param {number} b
+ * @returns {number}
+ */
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+/** UI controller for player gold, castles, hero stats and timers. */
 export class HUD {
+    /**
+     * @param {import('../core/Game.js').Game} game
+     * @param {import('../../js/main.js').UiRefs} refs
+     */
     constructor(game, refs) {
+        /** @type Game */
         this.game = game;
+        /** @type UiRefs */
         this.refs = refs;
+        /** @type {number} */
         this._gold = 0;
+        /** @type {number} */
         this._time = 0;
+        /** @type {number} */
         this._aiGold = 0;
+        /** @type {number} */
         this._heroLevel = 1;
+        /** @type {number} */
         this._heroExp = 0;
+        /** @type {number} */
         this._heroExpToNext = 100;
+        /** @type {number} */
         this._playerCastleHp = 0;
+        /** @type {number} */
         this._playerCastleMaxHp = 0;
+        /** @type {number} */
         this._aiCastleHp = 0;
+        /** @type {number} */
         this._aiCastleMaxHp = 0;
+        /** @type {number} */
         this._castleLevel = 1;
+        /** @type {boolean} */
         this._dirty = true;
+        /** @type {Array<{el: HTMLElement, time: number}>} */
         this._floatingGold = [];
 
         this._setupListeners();
     }
 
+    /** @returns {number} */
     get gold() { return this._gold; }
+    /** @param {number} v */
     set gold(v) { this._gold = v; this._dirty = true; }
 
+    /** @private */
     _setupListeners() {
         this.game.events.on(GameEvents.RESTART, () => {
             this._gold = 0;
@@ -58,8 +94,10 @@ export class HUD {
             } else {
                 this._aiGold += amount;
             }
+
             this._dirty = true;
         });
+
         this.game.events.on(GameEvents.GET_GOLD, (owner, cb) => {
             cb(owner === 'player' ? this._gold : this._aiGold);
         });
@@ -72,6 +110,7 @@ export class HUD {
             this._time = this.game.time;
             this._dirty = true;
         });
+
         this.game.events.on(GameEvents.CASTLE_DAMAGE, (owner, amount) => {
             const castle = this.game.entities.getCastle(owner);
             if (castle) {
@@ -79,6 +118,7 @@ export class HUD {
                 this._dirty = true;
             }
         });
+
         this.game.events.on(GameEvents.HERO_EXP, (amount) => {
             this._heroExp += amount;
             while (this._heroExp >= this._heroExpToNext) {
@@ -92,6 +132,7 @@ export class HUD {
         });
     }
 
+    /** @private */
     _upgradeHeroStats() {
         const hb = GameBalance.hero;
         const level = this._heroLevel;
@@ -111,6 +152,7 @@ export class HUD {
         this._updateHeroStatsUI();
     }
 
+    /** @private */
     _updateHeroStatsUI() {
         const hero =
           this.game.entities.units.find(u => u.defName === 'hero' && u.owner === 'player' && u.curHp > 0)
@@ -126,6 +168,10 @@ export class HUD {
         if (this.refs.heroSpdStat) this.refs.heroSpdStat.textContent = hero.speed.toFixed(1);
     }
 
+    /**
+     * @private
+     * @param {number} amount
+     */
     _addFloatingGold(amount) {
         if (!this.refs.goldEl) return;
         const rect = this.refs.goldEl.getBoundingClientRect();
@@ -139,6 +185,10 @@ export class HUD {
         this._floatingGold.push({ el, time: 0 });
     }
 
+    /**
+     * @private
+     * @param {number} dt
+     */
     _updateFloatingGold(dt) {
         for (let i = this._floatingGold.length - 1; i >= 0; i--) {
             const fg = this._floatingGold[i];
@@ -153,6 +203,7 @@ export class HUD {
         }
     }
 
+    /** Sync castle HP from EntityManager. */
     syncCastles() {
         const pc = this.game.entities.getCastle('player');
         const ac = this.game.entities.getCastle('ai');
@@ -160,6 +211,7 @@ export class HUD {
         if (ac) { this._aiCastleHp = ac.curHp; this._aiCastleMaxHp = ac.maxHp; }
     }
 
+    /** Refresh UI elements if dirty. */
     update() {
         this._updateFloatingGold(16.67);
         if (!this._dirty) return;
@@ -167,6 +219,7 @@ export class HUD {
         this.syncCastles();
 
         const refs = this.refs;
+
         if (refs.goldEl) refs.goldEl.textContent = Math.floor(this._gold).toString();
         if (refs.timeEl) refs.timeEl.textContent = Math.floor(this._time).toString();
         if (refs.aiGoldInfo) refs.aiGoldInfo.textContent = Math.floor(this._aiGold).toString();
@@ -190,6 +243,7 @@ export class HUD {
             refs.castlePlayer.classList.toggle('damaged', ppct < 0.5 && ppct >= 0.25);
             refs.castlePlayer.classList.toggle('critical', ppct < 0.25);
         }
+
         if (refs.castleAi) {
             const apct = this._aiCastleMaxHp > 0 ? this._aiCastleHp / this._aiCastleMaxHp : 1;
             refs.castleAi.classList.toggle('damaged', apct < 0.5 && apct >= 0.25);
@@ -203,14 +257,17 @@ export class HUD {
         this._updateCastleLevelUI();
     }
 
+    /** @returns {number} */
     get castleLevel() { return this._castleLevel; }
 
+    /** @returns {number|null} */
     get castleUpgradeCost() {
         const cfg = GameBalance.castleLevels;
         if (this._castleLevel >= cfg.maxLevel) return null;
         return Math.floor(cfg.baseCost * Math.pow(cfg.costMultiplier, this._castleLevel - 1));
     }
 
+    /** @returns {boolean} */
     tryUpgradeCastle() {
         const cost = this.castleUpgradeCost;
         if (cost === null) return false;
@@ -222,6 +279,7 @@ export class HUD {
         return true;
     }
 
+    /** @private */
     _updateCastleLevelUI() {
         const refs = this.refs;
         if (refs.castleLevelEl) refs.castleLevelEl.textContent = this._castleLevel;

@@ -1,3 +1,4 @@
+"use strict";
 import { Castle } from '../entities/Castle.js';
 import { GameEvents } from './Events.js';
 import { GameBalance } from './GameBalance.js';

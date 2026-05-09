@@ -1,3 +1,4 @@
+"use strict";
 import { EventBanner } from '../ui/EventBanner.js';
 import { GameEvents } from '../core/Events.js';
 

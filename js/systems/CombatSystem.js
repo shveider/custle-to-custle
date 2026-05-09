@@ -1,3 +1,4 @@
+"use strict";
 import { GameEvents } from '../core/Events.js';
 import { AbilityRegistry } from './abilities/AbilityRegistry.js';
 
@@ -171,14 +172,15 @@ export class CombatSystem {
 
     _onKill(attacker, target) {
         const killGold = (target.constructor.cost || 0) * 0.2;
-        console.log('cost', target.constructor.cost)
-        console.log('killGold for', attacker.owner, killGold)
+
         if (killGold > 0) {
             this.game.addGold(attacker.owner, killGold);
         }
+
         if (attacker.owner === 'player') {
             this.game.events.emit(GameEvents.HERO_EXP, 10 + Math.floor(target.maxHp / 10));
         }
+
         this.game.events.emit(GameEvents.UNIT_KILLED, attacker, target);
     }
 }

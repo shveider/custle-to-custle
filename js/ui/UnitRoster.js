@@ -1,3 +1,4 @@
+"use strict";
 export class UnitRoster {
     constructor(game, assetRegistry) {
         this.game = game;

@@ -1,3 +1,4 @@
+"use strict";
 import { Entity } from './Entity.js';
 import { UnitType, ResourceType } from '../core/UnitTypes.js';
 
@@ -21,6 +22,7 @@ export class Unit extends Entity {
 
     constructor(id, owner, stats) {
         super(id);
+
         this.isUnit = true;
         this.owner = owner;
         this.defName = this.constructor.name.toLowerCase();

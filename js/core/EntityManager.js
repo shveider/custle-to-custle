@@ -1,3 +1,4 @@
+"use strict";
 import { EventBus } from './EventBus.js';
 import { EntityEvents } from './Events.js';
 
@@ -43,18 +44,6 @@ export class EntityManager {
         this.events.emit(EntityEvents.REMOVED, entity);
     }
 
-    getById(id) {
-        return this._entities.get(id);
-    }
-
-    get unitCount() {
-        return this._units.size;
-    }
-
-    get castleCount() {
-        return this._castles.size;
-    }
-
     get units() {
         return Array.from(this._units.values());
     }
@@ -71,32 +60,12 @@ export class EntityManager {
         return result;
     }
 
-    findAlive(owner) {
-        const result = [];
-        for (const u of this._units.values()) {
-            if (u.owner === owner && u.curHp > 0) result.push(u);
-        }
-        return result;
-    }
-
     findEnemy(owner) {
         const result = [];
         for (const u of this._units.values()) {
             if (u.owner !== owner && u.curHp > 0) result.push(u);
         }
         return result;
-    }
-
-    findEnemyAlive(owner) {
-        return this.findEnemy(owner);
-    }
-
-    countByOwner(owner) {
-        let count = 0;
-        for (const u of this._units.values()) {
-            if (u.owner === owner) count++;
-        }
-        return count;
     }
 
     countAlive(owner) {
@@ -107,29 +76,11 @@ export class EntityManager {
         return count;
     }
 
-    countByType(owner, defName) {
-        let count = 0;
-        for (const u of this._units.values()) {
-            if (u.owner === owner && u.defName === defName) count++;
-        }
-        return count;
-    }
-
     getCastle(owner) {
         for (const c of this._castles.values()) {
             if (c.owner === owner) return c;
         }
         return null;
-    }
-
-    inRange(x, range, owner) {
-        const result = [];
-        for (const u of this._units.values()) {
-            if (u.owner !== owner && u.curHp > 0 && Math.abs(u.x - x) <= range) {
-                result.push(u);
-            }
-        }
-        return result;
     }
 
     nearestEnemyTo(entity, range = Infinity) {
@@ -162,28 +113,6 @@ export class EntityManager {
         }
 
         return nearest;
-    }
-
-    resolveUnitOverlap(unit, preferredX, minGap = 28) {
-        let x = preferredX;
-        let attempts = 0;
-        const dir = unit.dir;
-
-        while (attempts < 8) {
-            let blocked = false;
-            for (const u of this._units.values()) {
-                if (u === unit || !u.isUnit || u.curHp <= 0) continue;
-                if (Math.abs(u.x - x) < minGap) {
-                    blocked = true;
-                    break;
-                }
-            }
-            if (!blocked) break;
-            x += dir * (minGap + 4);
-            attempts++;
-        }
-
-        return x;
     }
 
     destroy() {

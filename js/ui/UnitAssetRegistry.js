@@ -1,3 +1,4 @@
+"use strict";
 const SVG_CACHE = {};
 
 function getUnitSVG(type, owner) {

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * A visual effect entity with a finite lifetime (e.g. impacts,
  * damage numbers, chain lightning, summon bursts).
