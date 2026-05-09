@@ -290,4 +290,7 @@ function startGame() {
     game.start();
 }
 
-startGame();
+document.getElementById('btn-start-game').addEventListener('click', () => {
+    document.getElementById('menu-overlay').style.display = 'none';
+    startGame();
+});

@@ -428,6 +428,52 @@ button.small:hover {
     border-color: rgba(245,158,11,0.5);
 }
 
+#menu-overlay {
+    display: flex; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.78); z-index: 9999;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+}
+
+#menu-content {
+    background: linear-gradient(145deg, #120820, #0d1424);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 20px; padding: 56px 76px; text-align: center;
+    box-shadow: 0 0 90px rgba(0,0,0,0.85), 0 0 50px rgba(245,158,11,0.08);
+    animation: overlayIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+#menu-content h1 {
+    font-size: 56px; font-weight: 800; margin: 0 0 6px; letter-spacing: -1px;
+    background: linear-gradient(135deg, #f59e0b, #fcd34d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#menu-content h2 {
+    font-size: 28px; font-weight: 600; margin: 0 0 24px; color: #fcd34d;
+    text-shadow: 0 0 20px rgba(252,211,77,0.35);
+    letter-spacing: 1px;
+}
+
+#menu-content p {
+    font-size: 15px; color: #7080a0; margin: 0 0 34px;
+}
+
+#menu-content button {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #0d1424; font-size: 16px; font-weight: 700;
+    padding: 14px 38px; border: none; border-radius: 10px; cursor: pointer;
+    transition: all 0.14s ease;
+    box-shadow: 0 4px 22px rgba(245,158,11,0.32);
+}
+
+#menu-content button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(245,158,11,0.45);
+}
+
 #game-over-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.78); z-index: 9999;
